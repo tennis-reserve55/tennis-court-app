@@ -44,7 +44,7 @@
     :root {
       --ink: #EDEAE0;
       --ink-soft: #C2C9C2;
-      --muted: #8B948E;
+      --muted: #9DA79C;
       --paper: #0F120E;
       --surface: #1D2417;
       --surface-2: #29321F;
@@ -172,7 +172,7 @@
   .filter-sheet .field:last-of-type { margin-bottom: 6px; }
   .add-btn-desktop {
     display: none; border: none; background: var(--ink); color: var(--paper);
-    border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 14px;
+    border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 20px;
   }
 
   /* ---------- 次の予約(ヒーロー) ---------- */
@@ -180,7 +180,7 @@
     border: 1px solid var(--border-strong); border-left: 5px solid var(--accent, var(--ink-soft));
     border-radius: var(--radius);
     background: color-mix(in srgb, var(--accent, var(--ink-soft)) 12%, var(--surface));
-    padding: 16px 18px; margin-bottom: 16px;
+    padding: 16px 18px; margin-bottom: 22px;
   }
   .hero .hero-label { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
   .hero .hero-when { font-size: 1.25rem; font-weight: 900; margin-bottom: 4px; }
@@ -277,40 +277,66 @@
   .links-group a { font-size: 0.9rem; word-break: break-all; }
   .note-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 20px; font-size: 0.85rem; color: var(--ink-soft); line-height: 1.7; }
 
-  /* ============ PC(860px以上) ============ */
+  /* ============ PC表示(自動判定 or 手動切替) ============ */
+  /* 画面幅860px以上では自動的にPCレイアウトにする */
   @media (min-width: 860px) {
-    .mobile-header { display: none; }
-    .bottom-tabs { display: none; }
-    .fab { display: none; }
-    .add-btn-desktop { display: inline-block; }
+    html:not(.force-mobile) .mobile-header { display: none; }
+    html:not(.force-mobile) .bottom-tabs { display: none; }
+    html:not(.force-mobile) .fab { display: none; }
+    html:not(.force-mobile) .add-btn-desktop { display: inline-block; }
+    html:not(.force-mobile) .layout { display: flex; min-height: 100vh; }
+    html:not(.force-mobile) .sidebar { display: flex; }
+    html:not(.force-mobile) main.content { flex: 1; padding: 24px 28px; max-width: 980px; }
+    html:not(.force-mobile) #card-list { display: none; }
+    html:not(.force-mobile) #table-wrap { display: block; }
+    html:not(.force-mobile) .chip-row { overflow-x: visible; flex-wrap: wrap; }
+    html:not(.force-mobile) .modal-backdrop { align-items: center; }
+  }
+  /* 手動で「PC表示」を選んだ場合は、画面幅に関わらず強制的に適用 */
+  html.force-desktop .mobile-header { display: none; }
+  html.force-desktop .bottom-tabs { display: none; }
+  html.force-desktop .fab { display: none; }
+  html.force-desktop .add-btn-desktop { display: inline-block; }
+  html.force-desktop .layout { display: flex; min-height: 100vh; }
+  html.force-desktop .sidebar { display: flex; }
+  html.force-desktop main.content { flex: 1; padding: 24px 28px; max-width: 980px; }
+  html.force-desktop #card-list { display: none; }
+  html.force-desktop #table-wrap { display: block; }
+  html.force-desktop .chip-row { overflow-x: visible; flex-wrap: wrap; }
+  html.force-desktop .modal-backdrop { align-items: center; }
 
-    .layout { display: flex; min-height: 100vh; }
-    .sidebar {
-      display: flex; flex-direction: column; width: var(--sidebar-w); flex-shrink: 0;
+  .sidebar {
+      flex-direction: column; width: var(--sidebar-w); flex-shrink: 0;
       border-right: 1px solid var(--border); background: var(--surface); padding: 18px 14px;
       position: sticky; top: 0; height: 100vh;
-    }
-    .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; margin-bottom: 22px; padding: 0 6px; }
-    .sidebar .sb-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-    .sidebar .sb-nav button {
+  }
+  .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; margin-bottom: 22px; padding: 0 6px; }
+  .sidebar .sb-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .sidebar .sb-nav button {
       display: flex; align-items: center; gap: 10px; border: none; background: none; text-align: left;
       padding: 10px 10px; border-radius: 999px; font-size: 0.9rem; font-weight: 700; color: var(--ink-soft);
-    }
-    .sidebar .sb-nav button.active { background: var(--ink); color: var(--paper); }
-    .sidebar .sb-user { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
-    .sidebar .sb-user .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .sidebar .sb-user .name { font-size: 0.82rem; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sidebar .sb-user button.signout { border: none; background: none; text-decoration: underline; color: var(--muted); font-size: 0.8rem; padding: 2px 0; }
-
-    main.content { flex: 1; padding: 24px 28px; max-width: 980px; }
-
-    #card-list { display: none; }
-    #table-wrap { display: block; }
-    .chip-row { overflow-x: visible; flex-wrap: wrap; }
   }
+  .sidebar .sb-nav button.active { background: var(--ink); color: var(--paper); }
+  .sidebar .sb-user { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+  .sidebar .sb-user .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .sidebar .sb-user .name { font-size: 0.82rem; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar .sb-user button.view-toggle,
+  .avatar-menu button.view-toggle {
+      border: none; background: none; text-align: left; width: 100%;
+      padding: 11px 14px; font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar .sb-user button.view-toggle { padding: 6px 0; font-size: 0.8rem; color: var(--ink-soft); text-decoration: underline; }
+  .sidebar .sb-user button.signout { border: none; background: none; text-decoration: underline; color: var(--muted); font-size: 0.8rem; padding: 2px 0; }
 </style>
 </head>
 <body>
+<script>
+(function () {
+  var pref = localStorage.getItem('viewModeOverride') || 'auto';
+  if (pref === 'desktop') document.documentElement.classList.add('force-desktop');
+  else if (pref === 'mobile') document.documentElement.classList.add('force-mobile');
+})();
+</script>
 
 <!-- ============ サインイン画面 ============ -->
 <div id="signin-screen">
@@ -349,6 +375,10 @@
       </button>
       <div class="avatar-menu hidden" id="avatar-menu-mobile">
         <div class="who" id="user-name-m"></div>
+        <button class="view-toggle" id="btn-view-toggle-m">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
+          PC表示に切り替える
+        </button>
         <button id="btn-signout-m">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
           ログアウト
@@ -390,6 +420,7 @@
           <div id="user-fallback-d" class="avatar-fallback hidden" style="width:26px;height:26px;font-size:0.75rem;"></div>
           <span class="name" id="user-name-d"></span>
         </div>
+        <button class="view-toggle" id="btn-view-toggle-d">スマホ表示に切り替える</button>
         <button class="signout" id="btn-signout-d">ログアウト</button>
       </div>
     </nav>
@@ -776,6 +807,18 @@ avatarToggleM.addEventListener('click', (e) => { e.stopPropagation(); avatarMenu
 document.addEventListener('click', () => avatarMenuM.classList.add('hidden'));
 
 // ============================================================
+// スマホ/PC表示の手動切り替え
+// ============================================================
+function setViewOverride(mode) {
+  localStorage.setItem('viewModeOverride', mode);
+  document.documentElement.classList.remove('force-desktop', 'force-mobile');
+  if (mode === 'desktop') document.documentElement.classList.add('force-desktop');
+  if (mode === 'mobile') document.documentElement.classList.add('force-mobile');
+}
+document.getElementById('btn-view-toggle-m').addEventListener('click', () => setViewOverride('desktop'));
+document.getElementById('btn-view-toggle-d').addEventListener('click', () => setViewOverride('mobile'));
+
+// ============================================================
 // タブ/ナビ切り替え(サイドバー・下部タブ共通)
 // ============================================================
 const views = { list: document.getElementById('view-list'), trash: document.getElementById('view-trash'), links: document.getElementById('view-links') };
@@ -849,7 +892,8 @@ function renderHero(active) {
   const upcoming = active.filter((r) => r.status === '予約済' && parseDateStr(r.date) >= today)
     .sort((a, b) => a.date.localeCompare(b.date));
   const hero = document.getElementById('hero');
-  if (upcoming.length === 0) { hero.innerHTML = `<div class="hero empty">次の予約はありません</div>`; return; }
+  hero.className = 'hero';
+  if (upcoming.length === 0) { hero.classList.add('empty'); hero.innerHTML = '次の予約はありません'; return; }
   const r = upcoming[0];
   const dateObj = parseDateStr(r.date);
   const confirmDeadline = getConfirmDeadline(dateObj, r.ward);
