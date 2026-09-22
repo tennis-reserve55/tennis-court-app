@@ -38,6 +38,7 @@
     --pending-text: #2E4270;
     --avail-free: #4C8C3C;
     --avail-busy: #B08A3E;
+    --placeholder: #948E80;
     --radius: 10px;
     --font: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
     --sidebar-w: 220px;
@@ -64,6 +65,7 @@
       --pending-text: #A9C0E8;
       --avail-free: #7FBF6A;
       --avail-busy: #D9B66E;
+      --placeholder: #8B948E;
       color-scheme: dark;
     }
   }
@@ -87,6 +89,7 @@
     --pending-text: #A9C0E8;
     --avail-free: #7FBF6A;
     --avail-busy: #D9B66E;
+    --placeholder: #8B948E;
     color-scheme: dark;
   }
   :root[data-theme="light"] {
@@ -108,6 +111,7 @@
     --pending-text: #2E4270;
     --avail-free: #4C8C3C;
     --avail-busy: #B08A3E;
+    --placeholder: #948E80;
     color-scheme: light;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -250,7 +254,8 @@
   .detail-row .detail-label { color: var(--ink-soft); flex-shrink: 0; }
   .detail-row.urgent span:last-child { color: var(--urgent); font-weight: 700; }
   .r-card-tap, .r-row-tap { cursor: pointer; }
-  .private-flag { width: 15px; height: 15px; color: var(--pending-text); flex-shrink: 0; }
+  .private-flag { width: 15px; height: 15px; color: var(--pending-text); flex-shrink: 0; display: inline-flex; }
+  .private-flag svg { width: 100%; height: 100%; }
   .add-btn-desktop {
     display: none; border: none; background: var(--ink); color: var(--paper);
     border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 20px;
@@ -331,7 +336,8 @@
   #card-list { display: block; }
   #table-wrap { display: none; }
 
-  .empty-state { text-align: center; color: var(--muted); padding: 40px 20px; }
+  .empty-state { text-align: center; color: var(--placeholder); padding: 40px 20px; }
+  .field select.is-placeholder { color: var(--placeholder); }
 
   /* ---------- カレンダー ---------- */
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -376,7 +382,7 @@
   .avail-readonly-value.is-free { color: var(--avail-free); border-color: var(--avail-free); }
   .avail-readonly-value.is-busy { color: var(--avail-busy); border-color: var(--avail-busy); }
   .avail-readonly-memo { font-size: 0.8rem; color: var(--ink-soft); }
-  .avail-readonly-empty { font-size: 0.82rem; color: var(--muted); }
+  .avail-readonly-empty { font-size: 0.82rem; color: var(--placeholder); }
   .shared-memo-box { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
   .shared-memo-box label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 5px; }
   .shared-memo-box textarea { width: 100%; border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 10px; font-size: 0.85rem; background: var(--paper); resize: vertical; }
@@ -1926,6 +1932,16 @@ const courtSelect = document.getElementById('f-court');
 const surfaceSelect = document.getElementById('f-surface');
 const startSelect = document.getElementById('f-start');
 const endSelect = document.getElementById('f-end');
+const statusSelect = document.getElementById('f-status');
+
+function syncAllPlaceholders() {
+  [wardSelect, facilitySelect, courtSelect, surfaceSelect, startSelect, endSelect, statusSelect].forEach((sel) => {
+    sel.classList.toggle('is-placeholder', sel.value === '');
+  });
+}
+[wardSelect, facilitySelect, courtSelect, surfaceSelect, startSelect, endSelect, statusSelect].forEach((sel) => {
+  sel.addEventListener('change', syncAllPlaceholders);
+});
 
 const wardPlaceholder = new Option('選択してください', '');
 wardPlaceholder.disabled = true;
@@ -1961,10 +1977,12 @@ function updateFacilityOptions(currentValue) {
 wardSelect.addEventListener('change', () => {
   updateFacilityOptions(null);
   applySurfaceFromFacility();
+  syncAllPlaceholders();
 });
 function applySurfaceFromFacility() {
   const match = (FACILITIES[wardSelect.value] || []).find(([name]) => name === facilitySelect.value);
   if (match) surfaceSelect.value = match[1];
+  syncAllPlaceholders();
 }
 facilitySelect.addEventListener('change', applySurfaceFromFacility);
 
@@ -2010,6 +2028,7 @@ function openForm(source, opts = {}) {
     startSelect.value = '';
     endSelect.value = '';
   }
+  syncAllPlaceholders();
   modalBackdrop.classList.remove('hidden');
 }
 function closeForm() { modalBackdrop.classList.add('hidden'); editingId = null; }
