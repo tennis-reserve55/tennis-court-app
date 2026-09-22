@@ -338,6 +338,8 @@
 
   .empty-state { text-align: center; color: var(--placeholder); padding: 40px 20px; }
   .field select.is-placeholder { color: var(--placeholder); }
+  .field select option { color: var(--ink); }
+  .field select option:disabled { color: var(--placeholder); }
 
   /* ---------- カレンダー ---------- */
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -732,7 +734,7 @@
   </button>
 
   <!-- 複数選択時の一括操作バー -->
-  <div id="bulk-bar" class="hidden">
+  <div id="bulk-bar">
     <span id="bulk-count-label">0件選択中</span>
     <div style="display:flex; gap:8px;">
       <button type="button" class="icon-btn" id="btn-bulk-cancel">キャンセル</button>
