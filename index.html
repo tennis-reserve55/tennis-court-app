@@ -200,6 +200,23 @@
   }
   .fab svg { width: 26px; height: 26px; }
 
+  #bulk-bar {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: var(--surface); border-top: 1px solid var(--border-strong);
+    padding: 12px 16px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    align-items: center; justify-content: space-between; gap: 10px;
+  }
+  #bulk-bar.visible { display: flex; }
+  #bulk-count-label { font-size: 0.88rem; font-weight: 700; color: var(--ink); }
+  .select-indicator {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-strong);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--paper);
+  }
+  .select-indicator.checked { background: var(--ink); border-color: var(--ink); }
+  .select-indicator svg { width: 12px; height: 12px; }
+  .select-th, .select-td { display: none; width: 32px; }
+  #table-wrap.selection-mode .select-th, #table-wrap.selection-mode .select-td { display: table-cell; }
+
   /* ---------- チップ(横スクロール絞り込み) ---------- */
   .chip-row { display: flex; gap: 7px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; }
   .chip-row::-webkit-scrollbar { display: none; }
@@ -239,6 +256,17 @@
     border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 20px;
   }
 
+  /* ---------- 共通:行・バッジ・アイコン付きテキスト ---------- */
+  .card-icon-text { display: inline-flex; align-items: center; gap: 5px; font-size: 0.85rem; color: var(--ink); min-width: 0; }
+  .card-icon-text svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .card-icon-text span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-badges { display: flex; gap: 6px; flex-shrink: 0; }
+  .badge-neutral {
+    background: var(--surface-2); border: 1px solid var(--border-strong); color: var(--ink);
+    font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge-surface { font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; color: var(--ink); }
+
   /* ---------- 次の予約(ヒーロー) ---------- */
   .hero {
     border: 1px solid var(--border-strong); border-left: 5px solid var(--accent, var(--ink-soft));
@@ -246,12 +274,18 @@
     background: color-mix(in srgb, var(--accent, var(--ink-soft)) 12%, var(--surface));
     padding: 16px 18px; margin-bottom: 22px;
   }
-  .hero .hero-label { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
-  .hero .hero-when { font-size: 1.25rem; font-weight: 900; margin-bottom: 4px; }
-  .hero .hero-where { color: var(--ink-soft); margin-bottom: 8px; }
-  .hero .hero-deadline { font-size: 0.9rem; font-weight: 700; }
-  .hero .hero-deadline.urgent { color: var(--urgent); }
-  .hero.empty { color: var(--muted); text-align: center; padding: 22px; }
+  .hero-row0 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .hero-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--ink); }
+  .hero-label svg { width: 13px; height: 13px; }
+  .hero-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .hero-date { font-size: 1.3rem; font-weight: 900; color: var(--ink); }
+  .hero-row2 { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+  .hero-deadline-box { border-top: 1px solid var(--border); padding-top: 10px; }
+  .hero-deadline-row { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .hero-deadline-row:last-child { margin-bottom: 0; }
+  .hero-deadline-row svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .hero-deadline-row.urgent { color: var(--urgent); }
+  .hero.empty { color: var(--ink); text-align: center; padding: 22px; }
 
   /* ---------- カード(スマホ) ---------- */
   #card-list { display: flex; flex-direction: column; gap: 10px; }
@@ -260,11 +294,10 @@
     border-radius: var(--radius); background: var(--surface); padding: 12px 14px;
   }
   .r-card.is-inactive { opacity: 0.6; }
-  .r-card .row1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
-  .r-card .when { font-weight: 700; }
-  .r-card.is-inactive .when, .r-card.is-inactive .where { text-decoration: line-through; color: var(--muted); }
-  .r-card .where { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 6px; }
-  .r-card .card-meta { color: var(--muted); font-size: 0.8rem; }
+  .card-row1, .card-row2, .card-row3 { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .card-row3 { margin-bottom: 0; }
+  .card-date { font-weight: 700; font-size: 1rem; color: var(--ink); }
+  .r-card.is-inactive .card-date, .r-card.is-inactive .card-icon-text span { text-decoration: line-through; }
   .r-card .card-actions { display: flex; gap: 6px; margin-top: 10px; }
 
   .badge {
@@ -337,6 +370,8 @@
   .avail-toggle button.selected.is-free { background: var(--avail-free); color: #fff; border-color: var(--avail-free); }
   .avail-toggle button.selected.is-busy { background: var(--avail-busy); color: #fff; border-color: var(--avail-busy); }
   .avail-memo-input { flex: 1; border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 9px; font-size: 0.82rem; background: var(--paper); min-width: 0; }
+  .avail-clear-btn { border: none; background: none; color: var(--ink); padding: 4px; flex-shrink: 0; display: flex; align-items: center; }
+  .avail-clear-btn svg { width: 14px; height: 14px; }
   .avail-readonly-value { font-size: 0.82rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border-strong); }
   .avail-readonly-value.is-free { color: var(--avail-free); border-color: var(--avail-free); }
   .avail-readonly-value.is-busy { color: var(--avail-busy); border-color: var(--avail-busy); }
@@ -402,6 +437,7 @@
     html:not(.force-mobile) #table-wrap { display: block; }
     html:not(.force-mobile) .chip-row { overflow-x: visible; flex-wrap: wrap; }
     html:not(.force-mobile) .modal-backdrop { align-items: center; }
+    html:not(.force-mobile) .modal { border-radius: 16px; }
   }
   /* 手動で「PC表示」を選んだ場合は、画面幅に関わらず強制的に適用 */
   html.force-desktop .mobile-header { display: none; }
@@ -415,6 +451,7 @@
   html.force-desktop #table-wrap { display: block; }
   html.force-desktop .chip-row { overflow-x: visible; flex-wrap: wrap; }
   html.force-desktop .modal-backdrop { align-items: center; }
+  html.force-desktop .modal { border-radius: 16px; }
 
   .sidebar {
       flex-direction: column; width: var(--sidebar-w); flex-shrink: 0;
@@ -574,6 +611,10 @@
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/><polyline points="17 4 17 20"/><polyline points="13 16 17 20 21 16"/></svg>
             <span id="sort-order-label">利用日が新しい順</span>
           </button>
+          <button class="filter-trigger" id="btn-toggle-selection">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 9"/></svg>
+            選択
+          </button>
         </div>
 
         <div id="card-list"></div>
@@ -581,7 +622,7 @@
           <table class="r-table">
             <thead>
               <tr>
-                <th>日時</th><th>施設</th><th>コート</th><th>ステータス</th>
+                <th class="select-th"></th><th>日時</th><th>施設</th><th>コート</th><th>ステータス</th>
                 <th>確定期限</th><th>キャンセル期限</th><th>予約者</th>
               </tr>
             </thead>
@@ -683,6 +724,18 @@
   <button class="fab" id="fab-add" aria-label="予約を追加">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
+
+  <!-- 複数選択時の一括操作バー -->
+  <div id="bulk-bar" class="hidden">
+    <span id="bulk-count-label">0件選択中</span>
+    <div style="display:flex; gap:8px;">
+      <button type="button" class="icon-btn" id="btn-bulk-cancel">キャンセル</button>
+      <button type="button" class="icon-btn danger" id="btn-bulk-trash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+        ゴミ箱に移動
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ============ 追加・編集モーダル ============ -->
@@ -725,7 +778,8 @@
       </div>
       <div class="field">
         <label>ステータス</label>
-        <select id="f-status">
+        <select id="f-status" required>
+          <option value="" disabled selected>選択してください</option>
           <option value="抽選中">抽選中</option>
           <option value="予約済">予約済</option>
           <option value="キャンセル">キャンセル</option>
@@ -736,11 +790,11 @@
       <div class="field-row">
         <div class="field">
           <label for="f-fee">料金(円)</label>
-          <input type="number" id="f-fee" inputmode="numeric" min="0" placeholder="例:2300">
+          <input type="number" id="f-fee" inputmode="numeric" min="0">
         </div>
         <div class="field">
           <label for="f-people">人数</label>
-          <input type="number" id="f-people" inputmode="numeric" min="1" placeholder="例:2">
+          <input type="number" id="f-people" inputmode="numeric" min="1">
         </div>
       </div>
       <div class="field">
@@ -993,6 +1047,8 @@ let allNicknames = {};
 let editingId = null;
 let filterState = { ward: '', status: '', applicant: '' };
 let sortOrder = localStorage.getItem('sortOrder') === 'asc' ? 'asc' : 'desc';
+let selectionMode = false;
+const selectedIds = new Set();
 
 // ============================================================
 // 認証
@@ -1046,7 +1102,7 @@ onAuthStateChanged(auth, (user) => {
 
 async function autoMarkPastAsUsed() {
   const today = startOfToday();
-  const targets = allReservations.filter((r) => !r.deletedAt && r.status === '予約済' && parseDateStr(r.date) < today);
+  const targets = allReservations.filter((r) => !r.deletedAt && r.status === '予約済' && parseDateStr(r.date) < today && isVisibleToMe(r));
   for (const r of targets) {
     try { await updateDoc(doc(db, 'reservations', r.id), { status: '利用済', updatedAt: serverTimestamp() }); }
     catch (err) { console.error('自動ステータス更新失敗', r.id, err); }
@@ -1208,7 +1264,7 @@ function renderApplicantChips() {
   const entries = new Map(); // key -> label
   Object.keys(allNicknames).forEach((email) => entries.set(email, nicknameFor(email)));
   allReservations.forEach((r) => {
-    if (r.deletedAt) return;
+    if (r.deletedAt || !isVisibleToMe(r)) return;
     const key = applicantKey(r);
     if (key && !entries.has(key)) entries.set(key, applicantLabel(r));
   });
@@ -1243,6 +1299,51 @@ document.getElementById('btn-toggle-sort').addEventListener('click', () => {
   renderAll();
 });
 updateSortLabel();
+
+// ============================================================
+// 複数選択・一括削除
+// ============================================================
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  document.getElementById('bulk-count-label').textContent = `${selectedIds.size}件選択中`;
+  bar.classList.toggle('visible', selectionMode);
+  document.querySelector('.bottom-tabs').classList.toggle('hidden', selectionMode);
+  document.getElementById('fab-add').classList.toggle('hidden', selectionMode);
+}
+document.getElementById('btn-toggle-selection').addEventListener('click', () => {
+  selectionMode = !selectionMode;
+  if (!selectionMode) selectedIds.clear();
+  updateBulkBar();
+  renderAll();
+});
+document.getElementById('btn-bulk-cancel').addEventListener('click', () => {
+  selectionMode = false;
+  selectedIds.clear();
+  updateBulkBar();
+  renderAll();
+});
+document.getElementById('btn-bulk-trash').addEventListener('click', async () => {
+  if (selectedIds.size === 0) return;
+  const targets = [...selectedIds].map((id) => allReservations.find((r) => r.id === id)).filter((r) => r && isOwner(r));
+  const skipped = selectedIds.size - targets.length;
+  if (targets.length === 0) {
+    alert('選択した予約はすべて、他の人が作成したものだったため削除できません。');
+    return;
+  }
+  const msg = skipped > 0
+    ? `${targets.length}件をゴミ箱に移動します(${skipped}件は作成者以外のため対象外です)。よろしいですか?`
+    : `${targets.length}件をゴミ箱に移動しますか?`;
+  if (!confirm(msg)) return;
+  for (const r of targets) {
+    try { await updateDoc(doc(db, 'reservations', r.id), { deletedAt: serverTimestamp() }); }
+    catch (err) { console.error('一括削除失敗', r.id, err); }
+  }
+  selectionMode = false;
+  selectedIds.clear();
+  updateBulkBar();
+  renderAll();
+});
+
 document.getElementById('btn-close-filter').addEventListener('click', () => filterSheetBackdrop.classList.add('hidden'));
 
 document.getElementById('btn-reset-filter').addEventListener('click', () => {
@@ -1317,19 +1418,31 @@ function renderHero(active) {
   if (confirmDeadline && confirmDeadline >= today) {
     const daysLeft = daysBetween(new Date(confirmDeadline), new Date());
     const urgent = daysLeft <= 3;
-    deadlineLines.push(`<div class="hero-deadline ${urgent ? 'urgent' : ''}">確定期限(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}まで${daysLeft >= 0 ? `(あと${daysLeft}日)` : ''}</div>`);
+    deadlineLines.push(`<div class="hero-deadline-row ${urgent ? 'urgent' : ''}">${ICON_WARN}確定期限(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}まで${daysLeft >= 0 ? `(あと${daysLeft}日)` : ''}</div>`);
   }
   if (cancelDeadline) {
-    deadlineLines.push(`<div class="hero-deadline">キャンセル期限 ${fmtMD(cancelDeadline)}まで</div>`);
+    deadlineLines.push(`<div class="hero-deadline-row">${ICON_WARN}キャンセル期限 ${fmtMD(cancelDeadline)}まで</div>`);
   }
-  const deadlineHtml = deadlineLines.join('');
+  const deadlineBoxHtml = deadlineLines.length ? `<div class="hero-deadline-box">${deadlineLines.join('')}</div>` : '';
 
   hero.style.setProperty('--accent', accent);
   hero.innerHTML = `
-    <div class="hero-label">次の予約</div>
-    <div class="hero-when">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</div>
-    <div class="hero-where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
-    ${deadlineHtml}
+    <div class="hero-row0">
+      <span class="hero-label">${ICON_NEXT}次の予約</span>
+      <span class="card-icon-text">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
+    </div>
+    <div class="hero-row1">
+      <span class="hero-date">${fmtDateJP(dateObj)}</span>
+      <span class="card-badges">
+        <span class="badge-neutral">${escapeHtml(r.ward)}</span>
+        ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 30%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+      </span>
+    </div>
+    <div class="hero-row2">
+      <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+      <span class="card-icon-text">${ICON_PIN}<span>${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</span></span>
+    </div>
+    ${deadlineBoxHtml}
   `;
 }
 
@@ -1369,6 +1482,13 @@ const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const ICON_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15V5a1 1 0 011-1h10"/></svg>`;
 const ICON_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>`;
 const ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>`;
+const ICON_CLOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`;
+const ICON_PIN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
+const ICON_PERSON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>`;
+const ICON_WARN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16" r="0.6" fill="currentColor" stroke="none"/></svg>`;
+const ICON_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>`;
+const ICON_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
+const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
 
 // ============================================================
 // 予約詳細モーダル
@@ -1465,35 +1585,67 @@ document.getElementById('btn-detail-private-toggle').addEventListener('click', a
 document.addEventListener('click', (e) => {
   const tapEl = e.target.closest('.r-card-tap, .r-row-tap');
   if (!tapEl) return;
-  const r = allReservations.find((x) => x.id === tapEl.dataset.id);
+  const id = tapEl.dataset.id;
+  if (selectionMode) {
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    updateBulkBar();
+    renderAll();
+    return;
+  }
+  const r = allReservations.find((x) => x.id === id);
   if (r) openDetail(r);
 });
 
-function renderCards(list) {
-  const wrap = document.getElementById('card-list');
-  if (list.length === 0) { wrap.innerHTML = `<div class="empty-state">条件に合う予約がありません</div>`; return; }
-  wrap.innerHTML = list.map((r) => {
-    const dateObj = parseDateStr(r.date);
-    const inactive = INACTIVE_STATUSES.includes(r.status);
-    const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
-    return `
-      <div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
-        <div class="row1">
-          <span class="when">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span>
+function selectIndicatorHtml(id) {
+  if (!selectionMode) return '';
+  const checked = selectedIds.has(id);
+  return `<span class="select-indicator ${checked ? 'checked' : ''}">${checked ? ICON_CHECK : ''}</span>`;
+}
+
+function cardInnerHtml(r) {
+  const dateObj = parseDateStr(r.date);
+  const inactive = INACTIVE_STATUSES.includes(r.status);
+  const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
+  return `
+        <div class="card-row1">
+          <span class="card-date">${fmtDateJP(dateObj)}</span>
           <span style="display:flex; align-items:center; gap:6px;">
             ${r.visibleTo ? `<span class="private-flag" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}
             <span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span>
           </span>
         </div>
-        <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
-        <div class="card-meta">予約者:${escapeHtml(applicantLabel(r))}</div>
-      </div>`;
+        <div class="card-row2">
+          <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+          <span class="card-badges">
+            <span class="badge-neutral">${escapeHtml(r.ward)}</span>
+            ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 30%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+          </span>
+        </div>
+        <div class="card-row3">
+          <span class="card-icon-text">${ICON_PIN}<span>${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</span></span>
+          <span class="card-icon-text">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
+        </div>`;
+}
+
+function renderCards(list) {
+  const wrap = document.getElementById('card-list');
+  if (list.length === 0) { wrap.innerHTML = `<div class="empty-state">条件に合う予約がありません</div>`; return; }
+  wrap.innerHTML = list.map((r) => {
+    const inactive = INACTIVE_STATUSES.includes(r.status);
+    const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
+    return `<div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        ${selectIndicatorHtml(r.id)}
+        <div style="flex:1; min-width:0;">${cardInnerHtml(r)}</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
 function renderTable(list) {
   const tbody = document.getElementById('table-body');
-  if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="empty-state">条件に合う予約がありません</td></tr>`; return; }
+  document.getElementById('table-wrap').classList.toggle('selection-mode', selectionMode);
+  if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="empty-state">条件に合う予約がありません</td></tr>`; return; }
   tbody.innerHTML = list.map((r) => {
     const dateObj = parseDateStr(r.date);
     const inactive = INACTIVE_STATUSES.includes(r.status);
@@ -1512,6 +1664,7 @@ function renderTable(list) {
     }
     return `
       <tr class="r-row-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
+        <td class="select-td">${selectIndicatorHtml(r.id)}</td>
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
         <td class="ward-cell ${cellClass}">${escapeHtml(r.ward)} ${escapeHtml(r.facility)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
@@ -1527,23 +1680,14 @@ function renderTrash(trashed) {
   const wrap = document.getElementById('trash-list');
   if (trashed.length === 0) { wrap.innerHTML = `<div class="empty-state">ゴミ箱は空です</div>`; return; }
   wrap.innerHTML = trashed.map((r) => {
-    const dateObj = parseDateStr(r.date);
     const owner = isOwner(r);
     const actionsHtml = owner
       ? `<div class="card-actions">
           <button class="icon-btn" data-action="restore" data-id="${r.id}">復元</button>
           <button class="icon-btn danger" data-action="purge" data-id="${r.id}">完全に削除</button>
         </div>`
-      : `<p style="font-size:0.78rem; color:var(--muted); margin:8px 0 0;">復元・完全削除は作成者のみ操作できます。</p>`;
-    return `
-      <div class="r-card">
-        <div class="row1">
-          <span class="when">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span>
-          <span class="badge status-inactive">${escapeHtml(r.status)}</span>
-        </div>
-        <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
-        ${actionsHtml}
-      </div>`;
+      : `<p style="font-size:0.78rem; color:var(--ink); margin:8px 0 0;">復元・完全削除は作成者のみ操作できます。</p>`;
+    return `<div class="r-card">${cardInnerHtml(r)}${actionsHtml}</div>`;
   }).join('');
 }
 
@@ -1551,17 +1695,9 @@ function renderHiddenList(hiddenItems) {
   const wrap = document.getElementById('hidden-list');
   if (hiddenItems.length === 0) { wrap.innerHTML = `<div class="empty-state">非表示にした予約はありません</div>`; return; }
   wrap.innerHTML = hiddenItems.map((r) => {
-    const dateObj = parseDateStr(r.date);
     const inactive = INACTIVE_STATUSES.includes(r.status);
     const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
-    return `
-      <div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
-        <div class="row1">
-          <span class="when">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span>
-          <span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span>
-        </div>
-        <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
-      </div>`;
+    return `<div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">${cardInnerHtml(r)}</div>`;
   }).join('');
 }
 
@@ -1592,6 +1728,15 @@ async function setMyAvailability(dateStr, status, memo) {
   const existing = allAvailability[dateStr] || { date: dateStr, sharedMemo: '', entries: [] };
   const entries = (existing.entries || []).filter((e) => e.email !== email);
   entries.push({ email, status, memo: memo ?? '' });
+  await setDoc(doc(db, 'availability', dateStr), {
+    date: dateStr, sharedMemo: existing.sharedMemo || '', entries, updatedAt: serverTimestamp()
+  });
+}
+async function clearMyAvailability(dateStr) {
+  const email = auth.currentUser?.email;
+  if (!email) return;
+  const existing = allAvailability[dateStr] || { date: dateStr, sharedMemo: '', entries: [] };
+  const entries = (existing.entries || []).filter((e) => e.email !== email);
   await setDoc(doc(db, 'availability', dateStr), {
     date: dateStr, sharedMemo: existing.sharedMemo || '', entries, updatedAt: serverTimestamp()
   });
@@ -1673,6 +1818,7 @@ function renderAvailBoxHtml(dateStr) {
           <button type="button" class="avail-status-btn is-busy ${my?.status === '予定あり' ? 'selected' : ''}" data-status="予定あり">予定あり</button>
         </div>
         <input type="text" class="avail-memo-input" id="avail-my-memo" placeholder="メモ(自分用)" value="${escapeHtml(my?.memo || '')}">
+        ${my ? `<button type="button" class="avail-clear-btn" id="btn-avail-clear" title="未入力に戻す">${ICON_X}</button>` : ''}
       </div>
       ${othersHtml}
       <div class="shared-memo-box">
@@ -1695,17 +1841,12 @@ function renderCalDayDetail() {
     : dayRes.map((r) => {
         const inactive = INACTIVE_STATUSES.includes(r.status);
         const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
-        return `
-          <div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
-            <div class="row1">
-              <span class="when">${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span>
-              <span style="display:flex; align-items:center; gap:6px;">
-                ${r.visibleTo ? `<span class="private-flag" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}
-                <span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span>
-              </span>
-            </div>
-            <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
-          </div>`;
+        return `<div class="r-card r-card-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            ${selectIndicatorHtml(r.id)}
+            <div style="flex:1; min-width:0;">${cardInnerHtml(r)}</div>
+          </div>
+        </div>`;
       }).join('');
 
   wrap.innerHTML = `<div class="cal-detail-date">${fmtDateJP(dateObj)}</div>${renderAvailBoxHtml(dateStr)}${resHtml}`;
@@ -1736,11 +1877,18 @@ document.getElementById('cal-month-input').addEventListener('change', (e) => {
 });
 
 document.getElementById('cal-day-detail').addEventListener('click', (e) => {
-  const btn = e.target.closest('.avail-status-btn');
-  if (!btn) return;
-  const dateStr = btn.closest('.avail-box').dataset.date;
-  const memo = document.getElementById('avail-my-memo')?.value || '';
-  setMyAvailability(dateStr, btn.dataset.status, memo);
+  const statusBtn = e.target.closest('.avail-status-btn');
+  if (statusBtn) {
+    const dateStr = statusBtn.closest('.avail-box').dataset.date;
+    const memo = document.getElementById('avail-my-memo')?.value || '';
+    setMyAvailability(dateStr, statusBtn.dataset.status, memo);
+    return;
+  }
+  const clearBtn = e.target.closest('#btn-avail-clear');
+  if (clearBtn) {
+    const dateStr = clearBtn.closest('.avail-box').dataset.date;
+    clearMyAvailability(dateStr);
+  }
 });
 document.getElementById('cal-day-detail').addEventListener('blur', (e) => {
   if (e.target.id === 'avail-my-memo') {
@@ -1761,11 +1909,6 @@ document.addEventListener('click', async (e) => {
   const target = allReservations.find((r) => r.id === id);
   if (!target) return;
 
-  if (action === 'edit') openForm(target);
-  if (action === 'duplicate') openForm(target, { duplicate: true });
-  if (action === 'trash') {
-    if (confirm('この予約をゴミ箱に移動しますか?')) await updateDoc(doc(db, 'reservations', id), { deletedAt: serverTimestamp() });
-  }
   if (action === 'restore' && isOwner(target)) await updateDoc(doc(db, 'reservations', id), { deletedAt: null });
   if (action === 'purge' && isOwner(target)) {
     if (confirm('完全に削除すると元に戻せません。よろしいですか?')) await deleteDoc(doc(db, 'reservations', id));
@@ -1784,8 +1927,16 @@ const surfaceSelect = document.getElementById('f-surface');
 const startSelect = document.getElementById('f-start');
 const endSelect = document.getElementById('f-end');
 
+const wardPlaceholder = new Option('選択してください', '');
+wardPlaceholder.disabled = true;
+wardSelect.appendChild(wardPlaceholder);
 Object.keys(WARD_RULES).forEach((w) => {
   const o = document.createElement('option'); o.value = w; o.textContent = w; wardSelect.appendChild(o);
+});
+[startSelect, endSelect].forEach((sel) => {
+  const placeholder = new Option('選択してください', '');
+  placeholder.disabled = true;
+  sel.appendChild(placeholder);
 });
 TIME_OPTIONS.forEach((t) => {
   startSelect.appendChild(new Option(t, t));
@@ -1794,6 +1945,7 @@ TIME_OPTIONS.forEach((t) => {
 
 function fillSelect(selectEl, values, currentValue) {
   selectEl.innerHTML = '';
+  if (!currentValue) selectEl.appendChild(new Option('未選択', ''));
   const list = [...values];
   if (currentValue && !list.includes(currentValue)) list.unshift(currentValue);
   list.forEach((v) => {
@@ -1853,7 +2005,10 @@ function openForm(source, opts = {}) {
     editingId = null;
     document.getElementById('modal-title').textContent = '予約を追加';
     updateFacilityOptions(null);
-    document.getElementById('f-status').value = '予約済';
+    document.getElementById('f-status').value = '';
+    wardSelect.value = '';
+    startSelect.value = '';
+    endSelect.value = '';
   }
   modalBackdrop.classList.remove('hidden');
 }
@@ -1876,7 +2031,7 @@ formEl.addEventListener('submit', async (e) => {
     peopleCount: document.getElementById('f-people').value === '' ? null : Number(document.getElementById('f-people').value),
     updatedAt: serverTimestamp()
   };
-  if (!data.date || !data.startTime || !data.endTime || !data.ward || !data.facility) {
+  if (!data.date || !data.startTime || !data.endTime || !data.ward || !data.facility || !data.status) {
     errBox.textContent = '利用日・時間・管轄・施設は必須です。';
     errBox.classList.remove('hidden');
     return;
