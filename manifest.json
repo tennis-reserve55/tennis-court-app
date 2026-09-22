@@ -1,0 +1,20 @@
+{
+  "name": "テニスコート予約管理",
+  "short_name": "コート予約",
+  "description": "深さん・霜さんのためのテニスコート予約共有管理アプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#EFEDE2",
+  "theme_color": "#1C2420",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
