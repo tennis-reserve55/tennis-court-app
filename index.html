@@ -29,6 +29,11 @@
     --omni: #56682F;
     --urgent: #A63A3A;
     --urgent-bg: #F3E1DE;
+    --link: #2F5D63;
+    --success-bg: #E3EDD9;
+    --success-text: #3F5B1E;
+    --muted-badge-bg: #E7E4D8;
+    --muted-badge-text: #6B7268;
     --radius: 10px;
     --font: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
     --sidebar-w: 220px;
@@ -37,15 +42,20 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --ink: #EAE7DC;
-      --ink-soft: #B9C0BA;
+      --ink: #EDEAE0;
+      --ink-soft: #C2C9C2;
       --muted: #8B948E;
-      --paper: #141815;
-      --surface: #1D2320;
-      --surface-2: #262C27;
-      --border: #333930;
-      --border-strong: #454C3F;
-      --urgent-bg: #3A2420;
+      --paper: #0F120E;
+      --surface: #1D2417;
+      --surface-2: #29321F;
+      --border: #3C4632;
+      --border-strong: #57634A;
+      --urgent-bg: #402620;
+      --link: #7FB8C4;
+      --success-bg: #263420;
+      --success-text: #A9CC8E;
+      --muted-badge-bg: #2A302A;
+      --muted-badge-text: #9AA298;
       color-scheme: dark;
     }
   }
@@ -61,7 +71,7 @@
   }
   button, input, select, textarea { font-family: inherit; font-size: 1rem; color: inherit; }
   button { cursor: pointer; }
-  a { color: var(--hard); }
+  a { color: var(--link); }
   .hidden { display: none !important; }
   svg.icon { width: 20px; height: 20px; flex-shrink: 0; }
 
@@ -148,7 +158,18 @@
     white-space: nowrap;
   }
   .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .filters-block { margin-bottom: 6px; }
+  .filters-block { margin-bottom: 12px; }
+  .filter-trigger {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--border-strong); background: var(--surface);
+    border-radius: 999px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700;
+  }
+  .filter-badge {
+    background: var(--ink); color: var(--paper); border-radius: 999px;
+    font-size: 0.7rem; min-width: 17px; height: 17px; display: inline-flex;
+    align-items: center; justify-content: center; padding: 0 5px;
+  }
+  .filter-sheet .field:last-of-type { margin-bottom: 6px; }
   .add-btn-desktop {
     display: none; border: none; background: var(--ink); color: var(--paper);
     border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 14px;
@@ -156,8 +177,10 @@
 
   /* ---------- 次の予約(ヒーロー) ---------- */
   .hero {
-    border: 1px solid var(--border); border-left: 5px solid var(--accent, var(--ink-soft));
-    border-radius: var(--radius); background: var(--surface); padding: 16px 18px; margin-bottom: 16px;
+    border: 1px solid var(--border-strong); border-left: 5px solid var(--accent, var(--ink-soft));
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent, var(--ink-soft)) 12%, var(--surface));
+    padding: 16px 18px; margin-bottom: 16px;
   }
   .hero .hero-label { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
   .hero .hero-when { font-size: 1.25rem; font-weight: 900; margin-bottom: 4px; }
@@ -186,8 +209,8 @@
     display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 2px 9px;
     border-radius: 999px; border: 1px solid var(--border-strong); white-space: nowrap;
   }
-  .badge.status-予約済 { background: rgba(120,120,120,0.12); border-color: var(--accent, var(--hard)); }
-  .badge.status-inactive { color: var(--muted); }
+  .badge.status-予約済 { background: var(--success-bg); color: var(--success-text); border-color: var(--success-text); }
+  .badge.status-inactive { background: var(--muted-badge-bg); color: var(--muted-badge-text); border-color: var(--border-strong); }
 
   .icon-btn {
     border: 1px solid var(--border-strong); background: var(--surface); border-radius: 8px;
@@ -379,9 +402,11 @@
         <button class="add-btn-desktop" id="btn-add-desktop">＋ 予約を追加</button>
 
         <div class="filters-block">
-          <div class="chip-row" id="chips-ward"></div>
-          <div class="chip-row" id="chips-status"></div>
-          <div class="chip-row" id="chips-applicant"></div>
+          <button class="filter-trigger" id="btn-open-filter">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5v6L10.5 20v-7.5z"/></svg>
+            絞り込み
+            <span class="filter-badge hidden" id="filter-count-badge">0</span>
+          </button>
         </div>
 
         <div id="card-list"></div>
@@ -520,6 +545,29 @@
         <button type="submit" class="btn-primary" id="btn-save-form">保存</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ============ 絞り込みシート ============ -->
+<div id="filter-sheet-backdrop" class="modal-backdrop hidden">
+  <div class="modal filter-sheet">
+    <h2>絞り込み</h2>
+    <div class="field">
+      <label>管轄</label>
+      <div class="chip-row" id="chips-ward"></div>
+    </div>
+    <div class="field">
+      <label>ステータス</label>
+      <div class="chip-row" id="chips-status"></div>
+    </div>
+    <div class="field">
+      <label>申込者</label>
+      <div class="chip-row" id="chips-applicant"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" id="btn-reset-filter">リセット</button>
+      <button type="button" class="btn-primary" id="btn-close-filter">閉じる</button>
+    </div>
   </div>
 </div>
 
@@ -758,12 +806,33 @@ function buildChipRow(containerId, options, key) {
     const chip = e.target.closest('.chip'); if (!chip) return;
     [...el.children].forEach((c) => c.classList.toggle('active', c === chip));
     filterState[key] = chip.dataset.value;
+    updateFilterBadge();
     renderAll();
   });
 }
 buildChipRow('chips-ward', Object.keys(WARD_RULES), 'ward');
 buildChipRow('chips-status', ['予約済', 'キャンセル', '利用済', '落選'], 'status');
 buildChipRow('chips-applicant', ['深', '霜'], 'applicant');
+
+function updateFilterBadge() {
+  const count = Object.values(filterState).filter((v) => v).length;
+  const badge = document.getElementById('filter-count-badge');
+  badge.textContent = count;
+  badge.classList.toggle('hidden', count === 0);
+}
+
+const filterSheetBackdrop = document.getElementById('filter-sheet-backdrop');
+document.getElementById('btn-open-filter').addEventListener('click', () => filterSheetBackdrop.classList.remove('hidden'));
+document.getElementById('btn-close-filter').addEventListener('click', () => filterSheetBackdrop.classList.add('hidden'));
+filterSheetBackdrop.addEventListener('click', (e) => { if (e.target === filterSheetBackdrop) filterSheetBackdrop.classList.add('hidden'); });
+document.getElementById('btn-reset-filter').addEventListener('click', () => {
+  filterState = { ward: '', status: '', applicant: '' };
+  document.querySelectorAll('#filter-sheet-backdrop .chip-row').forEach((row) => {
+    [...row.children].forEach((c, i) => c.classList.toggle('active', i === 0));
+  });
+  updateFilterBadge();
+  renderAll();
+});
 
 // ============================================================
 // 描画
@@ -787,14 +856,16 @@ function renderHero(active) {
   const cancelDeadline = getCancelDeadline(dateObj, r.ward);
   const accent = SURFACE_ACCENT[r.surface] || 'var(--ink-soft)';
 
-  let deadlineHtml = '';
-  if (confirmDeadline) {
+  const deadlineLines = [];
+  if (confirmDeadline && confirmDeadline >= today) {
     const daysLeft = daysBetween(new Date(confirmDeadline), new Date());
     const urgent = daysLeft <= 3;
-    deadlineHtml = `<div class="hero-deadline ${urgent ? 'urgent' : ''}">確定期限(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}まで${daysLeft >= 0 ? `(あと${daysLeft}日)` : ''}</div>`;
-  } else if (cancelDeadline) {
-    deadlineHtml = `<div class="hero-deadline">キャンセル期限 ${fmtMD(cancelDeadline)}まで</div>`;
+    deadlineLines.push(`<div class="hero-deadline ${urgent ? 'urgent' : ''}">確定期限(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}まで${daysLeft >= 0 ? `(あと${daysLeft}日)` : ''}</div>`);
   }
+  if (cancelDeadline) {
+    deadlineLines.push(`<div class="hero-deadline">キャンセル期限 ${fmtMD(cancelDeadline)}まで</div>`);
+  }
+  const deadlineHtml = deadlineLines.join('');
 
   hero.style.setProperty('--accent', accent);
   hero.innerHTML = `
@@ -822,11 +893,15 @@ function renderListViews(active) {
 function deadlineInfoHtml(r) {
   const dateObj = parseDateStr(r.date);
   const confirmDeadline = getConfirmDeadline(dateObj, r.ward);
+  const cancelDeadline = getCancelDeadline(dateObj, r.ward);
   const today = startOfToday();
   const parts = [];
-  if (r.status === '予約済' && confirmDeadline && confirmDeadline >= today) {
+  if (confirmDeadline && confirmDeadline >= today) {
     const daysLeft = daysBetween(new Date(confirmDeadline), new Date());
     parts.push({ text: `確定期限(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}`, urgent: daysLeft <= 3 });
+  }
+  if (cancelDeadline) {
+    parts.push({ text: `キャンセル期限 ${fmtMD(cancelDeadline)}`, urgent: false });
   }
   return parts;
 }
@@ -868,15 +943,24 @@ function renderTable(list) {
     const dateObj = parseDateStr(r.date);
     const inactive = INACTIVE_STATUSES.includes(r.status);
     const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
-    const deadlines = inactive ? [] : deadlineInfoHtml(r);
     const cellClass = inactive ? 'is-inactive-cell' : '';
+    let confirmCellHtml = '-', confirmUrgent = false;
+    if (!inactive) {
+      const confirmDeadline = getConfirmDeadline(dateObj, r.ward);
+      const today = startOfToday();
+      if (confirmDeadline && confirmDeadline >= today) {
+        const daysLeft = daysBetween(new Date(confirmDeadline), new Date());
+        confirmUrgent = daysLeft <= 3;
+        confirmCellHtml = `(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}`;
+      }
+    }
     return `
       <tr class="${inactive ? 'is-inactive' : ''}" style="--accent:${accent}">
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
         <td class="ward-cell ${cellClass}">${escapeHtml(r.ward)} ${escapeHtml(r.facility)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
         <td><span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
-        <td class="deadline-cell ${deadlines[0]?.urgent ? 'urgent' : ''}">${deadlines[0] ? escapeHtml(deadlines[0].text.replace('確定期限', '')) : '-'}</td>
+        <td class="deadline-cell ${confirmUrgent ? 'urgent' : ''}">${escapeHtml(confirmCellHtml)}</td>
         <td>${!inactive ? fmtMD(getCancelDeadline(dateObj, r.ward)) : '-'}</td>
         <td>${escapeHtml(r.applicant || '-')}</td>
         <td class="actions-cell">
