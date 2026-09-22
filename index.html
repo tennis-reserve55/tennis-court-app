@@ -1261,7 +1261,12 @@ function isVisibleToMe(r) {
   if (!r.visibleTo) return true;
   return r.visibleTo === auth.currentUser?.email;
 }
+const ADMIN_EMAILS = ['tennis.reserve55@gmail.com'];
+function isAdmin() {
+  return ADMIN_EMAILS.includes(auth.currentUser?.email);
+}
 function isOwner(r) {
+  if (isAdmin()) return true; // 管理者は常に全カードを操作可
   if (!r.createdBy) return true; // 作成者情報のない過去データは誰でも操作可
   return r.createdBy === auth.currentUser?.email;
 }
