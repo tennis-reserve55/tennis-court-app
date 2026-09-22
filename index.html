@@ -17,8 +17,8 @@
 <style>
   :root {
     --ink: #1C2420;
-    --ink-soft: #4A544E;
-    --muted: #7C8580;
+    --ink-soft: #1C2420;
+    --muted: #1C2420;
     --paper: #EFEDE2;
     --surface: #FBFAF4;
     --surface-2: #F2EFE4;
@@ -33,7 +33,7 @@
     --success-bg: #E3EDD9;
     --success-text: #3F5B1E;
     --muted-badge-bg: #E7E4D8;
-    --muted-badge-text: #6B7268;
+    --muted-badge-text: #1C2420;
     --radius: 10px;
     --font: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
     --sidebar-w: 220px;
@@ -42,22 +42,57 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --ink: #EDEAE0;
-      --ink-soft: #C2C9C2;
-      --muted: #9DA79C;
-      --paper: #0F120E;
-      --surface: #1D2417;
-      --surface-2: #29321F;
-      --border: #3C4632;
-      --border-strong: #57634A;
+      --ink: #F7F6F2;
+      --ink-soft: #F7F6F2;
+      --muted: #F7F6F2;
+      --paper: #17181A;
+      --surface: #232427;
+      --surface-2: #2D2F33;
+      --border: #454850;
+      --border-strong: #5F636C;
       --urgent-bg: #402620;
-      --link: #7FB8C4;
-      --success-bg: #263420;
-      --success-text: #A9CC8E;
-      --muted-badge-bg: #2A302A;
-      --muted-badge-text: #9AA298;
+      --link: #8FCBD8;
+      --success-bg: #24361E;
+      --success-text: #B3D699;
+      --muted-badge-bg: #2E3035;
+      --muted-badge-text: #F7F6F2;
       color-scheme: dark;
     }
+  }
+  /* 手動でのライト/ダークモード切り替え(システム設定より優先) */
+  :root[data-theme="dark"] {
+    --ink: #F7F6F2;
+    --ink-soft: #F7F6F2;
+    --muted: #F7F6F2;
+    --paper: #17181A;
+    --surface: #232427;
+    --surface-2: #2D2F33;
+    --border: #454850;
+    --border-strong: #5F636C;
+    --urgent-bg: #402620;
+    --link: #8FCBD8;
+    --success-bg: #24361E;
+    --success-text: #B3D699;
+    --muted-badge-bg: #2E3035;
+    --muted-badge-text: #F7F6F2;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --ink: #1C2420;
+    --ink-soft: #1C2420;
+    --muted: #1C2420;
+    --paper: #EFEDE2;
+    --surface: #FBFAF4;
+    --surface-2: #F2EFE4;
+    --border: #D9D5C6;
+    --border-strong: #C3BEA9;
+    --urgent-bg: #F3E1DE;
+    --link: #2F5D63;
+    --success-bg: #E3EDD9;
+    --success-text: #3F5B1E;
+    --muted-badge-bg: #E7E4D8;
+    --muted-badge-text: #1C2420;
+    color-scheme: light;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
@@ -237,6 +272,28 @@
 
   .empty-state { text-align: center; color: var(--muted); padding: 40px 20px; }
 
+  /* ---------- カレンダー ---------- */
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header button {
+    border: 1px solid var(--border-strong); background: var(--surface); border-radius: 8px;
+    width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  }
+  .cal-header span { font-weight: 900; font-size: 1.05rem; }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 18px; }
+  .cal-day {
+    aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 4px 2px; font-size: 0.78rem; color: var(--ink);
+  }
+  .cal-day.other-month { opacity: 0.32; }
+  .cal-day.is-today { border-color: var(--ink); border-width: 2px; font-weight: 900; }
+  .cal-day.selected { background: var(--surface-2); border-color: var(--ink); }
+  .cal-day .dots { display: flex; gap: 2px; margin-top: 4px; flex-wrap: wrap; justify-content: center; min-height: 6px; }
+  .cal-day .dot { width: 6px; height: 6px; border-radius: 50%; }
+  #cal-day-detail .r-card { margin-bottom: 8px; }
+  #cal-day-detail .cal-detail-date { font-weight: 700; margin: 4px 0 10px; }
+
   /* ---------- モーダル ---------- */
   .modal-backdrop {
     position: fixed; inset: 0; background: rgba(20, 24, 20, 0.45);
@@ -335,6 +392,9 @@
   var pref = localStorage.getItem('viewModeOverride') || 'auto';
   if (pref === 'desktop') document.documentElement.classList.add('force-desktop');
   else if (pref === 'mobile') document.documentElement.classList.add('force-mobile');
+
+  var theme = localStorage.getItem('themeOverride');
+  if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
 })();
 </script>
 
@@ -379,6 +439,10 @@
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
           PC表示に切り替える
         </button>
+        <button class="view-toggle" id="btn-theme-toggle-m">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+          <span id="theme-toggle-label-m">ダークモードに切り替える</span>
+        </button>
         <button id="btn-signout-m">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
           ログアウト
@@ -405,6 +469,10 @@
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
           一覧
         </button>
+        <button data-view="calendar" class="nav-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+          カレンダー
+        </button>
         <button data-view="trash" class="nav-item">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
           ゴミ箱
@@ -421,6 +489,7 @@
           <span class="name" id="user-name-d"></span>
         </div>
         <button class="view-toggle" id="btn-view-toggle-d">スマホ表示に切り替える</button>
+        <button class="view-toggle" id="btn-theme-toggle-d"><span id="theme-toggle-label-d">ダークモードに切り替える</span></button>
         <button class="signout" id="btn-signout-d">ログアウト</button>
       </div>
     </nav>
@@ -454,6 +523,24 @@
         </div>
       </section>
 
+      <!-- ---- カレンダービュー ---- -->
+      <section id="view-calendar" class="hidden">
+        <div class="cal-header">
+          <button type="button" id="cal-prev" aria-label="前の月">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span id="cal-title"></span>
+          <button type="button" id="cal-next" aria-label="次の月">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-weekdays">
+          <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div id="cal-day-detail"></div>
+      </section>
+
       <!-- ---- ゴミ箱ビュー ---- -->
       <section id="view-trash" class="hidden">
         <div id="trash-list"></div>
@@ -463,11 +550,17 @@
       <section id="view-links" class="hidden">
         <div class="links-group">
           <h3>都営</h3>
-          <ul><li><a href="https://www.kensetsu.metro.tokyo.lg.jp/documents/d/kensetsu/070331suporekuriyouannai" target="_blank" rel="noopener">都営施設案内</a></li></ul>
+          <ul>
+            <li><a href="https://www.kensetsu.metro.tokyo.lg.jp/documents/d/kensetsu/080601suporekuriyouannai" target="_blank" rel="noopener">都営施設案内</a></li>
+            <li><a href="https://kouen.sports.metro.tokyo.lg.jp/web/" target="_blank" rel="noopener">都営 予約サイト(スポレクシステム)</a></li>
+          </ul>
         </div>
         <div class="links-group">
           <h3>墨田区</h3>
-          <ul><li><a href="https://www.city.sumida.lg.jp/kurashi/sports/shisetsu-info/shiyouannai.files/okugai26.pdf" target="_blank" rel="noopener">墨田区施設案内</a></li></ul>
+          <ul>
+            <li><a href="https://sumida-sports.gr.jp/" target="_blank" rel="noopener">墨田区施設案内(すみスポ)</a></li>
+            <li><a href="https://yoyaku03.city.sumida.lg.jp/user/Home" target="_blank" rel="noopener">墨田区 予約サイト</a></li>
+          </ul>
         </div>
         <div class="links-group">
           <h3>大田区</h3>
@@ -480,7 +573,6 @@
           <h3>葛飾区</h3>
           <ul>
             <li><a href="https://spo.katsushika-web.net/group_guide/" target="_blank" rel="noopener">葛飾区営施設案内</a></li>
-            <li><a href="https://spo.katsushika-web.net/facility/others/#anc-nijukumirai" target="_blank" rel="noopener">にいじゅくみらい公園</a></li>
           </ul>
         </div>
         <div class="note-box">
@@ -495,6 +587,10 @@
     <button data-view="list" class="nav-item active">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
       一覧
+    </button>
+    <button data-view="calendar" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+      カレンダー
     </button>
     <button data-view="trash" class="nav-item">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
@@ -712,6 +808,10 @@ function parseDateStr(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
+function fmtDateStr(date) {
+  const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 const WEEKDAY_JP = ['日', '月', '火', '水', '木', '金', '土'];
 function fmtDateJP(date) { return `${date.getMonth() + 1}/${date.getDate()}(${WEEKDAY_JP[date.getDay()]})`; }
 function fmtMD(date) { return `${date.getMonth() + 1}/${date.getDate()}`; }
@@ -733,6 +833,22 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 function initials(name) { return (name || '?').trim().slice(0, 1); }
+
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+function hasOverlap(data, excludeId) {
+  const s2 = timeToMinutes(data.startTime), e2 = timeToMinutes(data.endTime);
+  return allReservations.some((r) => {
+    if (r.id === excludeId) return false;
+    if (r.deletedAt) return false;
+    if (r.status !== '予約済') return false;
+    if (r.date !== data.date || r.ward !== data.ward || r.facility !== data.facility || r.court !== data.court) return false;
+    const s1 = timeToMinutes(r.startTime), e1 = timeToMinutes(r.endTime);
+    return s1 < e2 && s2 < e1;
+  });
+}
 
 // ============================================================
 // 状態
@@ -819,9 +935,32 @@ document.getElementById('btn-view-toggle-m').addEventListener('click', () => set
 document.getElementById('btn-view-toggle-d').addEventListener('click', () => setViewOverride('mobile'));
 
 // ============================================================
+// ライト/ダークモードの手動切り替え
+// ============================================================
+function getEffectiveTheme() {
+  const stored = localStorage.getItem('themeOverride');
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function updateThemeLabels() {
+  const next = getEffectiveTheme() === 'dark' ? 'ライトモードに切り替える' : 'ダークモードに切り替える';
+  document.getElementById('theme-toggle-label-m').textContent = next;
+  document.getElementById('theme-toggle-label-d').textContent = next;
+}
+function toggleTheme() {
+  const newTheme = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('themeOverride', newTheme);
+  document.documentElement.setAttribute('data-theme', newTheme);
+  updateThemeLabels();
+}
+document.getElementById('btn-theme-toggle-m').addEventListener('click', toggleTheme);
+document.getElementById('btn-theme-toggle-d').addEventListener('click', toggleTheme);
+updateThemeLabels();
+
+// ============================================================
 // タブ/ナビ切り替え(サイドバー・下部タブ共通)
 // ============================================================
-const views = { list: document.getElementById('view-list'), trash: document.getElementById('view-trash'), links: document.getElementById('view-links') };
+const views = { list: document.getElementById('view-list'), calendar: document.getElementById('view-calendar'), trash: document.getElementById('view-trash'), links: document.getElementById('view-links') };
 document.querySelectorAll('.nav-item').forEach((btn) => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.view;
@@ -867,7 +1006,7 @@ function updateFilterBadge() {
 const filterSheetBackdrop = document.getElementById('filter-sheet-backdrop');
 document.getElementById('btn-open-filter').addEventListener('click', () => filterSheetBackdrop.classList.remove('hidden'));
 document.getElementById('btn-close-filter').addEventListener('click', () => filterSheetBackdrop.classList.add('hidden'));
-filterSheetBackdrop.addEventListener('click', (e) => { if (e.target === filterSheetBackdrop) filterSheetBackdrop.classList.add('hidden'); });
+
 document.getElementById('btn-reset-filter').addEventListener('click', () => {
   filterState = { ward: '', status: '', applicant: '' };
   document.querySelectorAll('#filter-sheet-backdrop .chip-row').forEach((row) => {
@@ -885,6 +1024,7 @@ function renderAll() {
   renderHero(active);
   renderListViews(active);
   renderTrash(allReservations.filter((r) => r.deletedAt));
+  renderCalendar();
 }
 
 function renderHero(active) {
@@ -1036,6 +1176,94 @@ function renderTrash(trashed) {
   }).join('');
 }
 
+// ============================================================
+// カレンダー表示
+// ============================================================
+const today0 = new Date();
+let calState = { year: today0.getFullYear(), month: today0.getMonth() + 1, selectedDate: null };
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  if (!grid) return;
+  document.getElementById('cal-title').textContent = `${calState.year}年${calState.month}月`;
+
+  const startWeekday = new Date(calState.year, calState.month - 1, 1).getDay();
+  const daysInMonth = new Date(calState.year, calState.month, 0).getDate();
+  const daysInPrevMonth = new Date(calState.year, calState.month - 1, 0).getDate();
+  const active = allReservations.filter((r) => !r.deletedAt);
+  const todayStr = fmtDateStr(new Date());
+
+  const cells = [];
+  for (let i = 0; i < startWeekday; i++) {
+    cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, dateStr: null, otherMonth: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calState.year}-${String(calState.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    cells.push({ day: d, dateStr, otherMonth: false });
+  }
+  let nextDay = 1;
+  while (cells.length % 7 !== 0) { cells.push({ day: nextDay++, dateStr: null, otherMonth: true }); }
+
+  grid.innerHTML = cells.map((c) => {
+    const dayRes = c.dateStr ? active.filter((r) => r.date === c.dateStr) : [];
+    const dots = dayRes.slice(0, 4).map((r) => {
+      const inactive = INACTIVE_STATUSES.includes(r.status);
+      const color = inactive ? 'var(--border-strong)' : (SURFACE_ACCENT[r.surface] || 'var(--ink-soft)');
+      return `<span class="dot" style="background:${color}"></span>`;
+    }).join('');
+    const cls = [
+      'cal-day',
+      c.otherMonth ? 'other-month' : '',
+      c.dateStr === todayStr ? 'is-today' : '',
+      c.dateStr && c.dateStr === calState.selectedDate ? 'selected' : ''
+    ].filter(Boolean).join(' ');
+    return `<button type="button" class="${cls}" data-date="${c.dateStr || ''}"><span>${c.day}</span><span class="dots">${dots}</span></button>`;
+  }).join('');
+
+  renderCalDayDetail();
+}
+
+function renderCalDayDetail() {
+  const wrap = document.getElementById('cal-day-detail');
+  if (!wrap) return;
+  if (!calState.selectedDate) { wrap.innerHTML = ''; return; }
+  const dateObj = parseDateStr(calState.selectedDate);
+  const dayRes = allReservations.filter((r) => !r.deletedAt && r.date === calState.selectedDate);
+  if (dayRes.length === 0) {
+    wrap.innerHTML = `<div class="cal-detail-date">${fmtDateJP(dateObj)}</div><div class="empty-state">予約はありません</div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="cal-detail-date">${fmtDateJP(dateObj)}</div>` + dayRes.map((r) => {
+    const inactive = INACTIVE_STATUSES.includes(r.status);
+    const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
+    return `
+      <div class="r-card ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}">
+        <div class="row1">
+          <span class="when">${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span>
+          <span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span>
+        </div>
+        <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
+      </div>`;
+  }).join('');
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calState.month -= 1;
+  if (calState.month < 1) { calState.month = 12; calState.year -= 1; }
+  renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  calState.month += 1;
+  if (calState.month > 12) { calState.month = 1; calState.year += 1; }
+  renderCalendar();
+});
+document.getElementById('cal-grid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.cal-day');
+  if (!btn || !btn.dataset.date) return;
+  calState.selectedDate = btn.dataset.date;
+  renderCalendar();
+});
+
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
@@ -1106,7 +1334,7 @@ applicantInput.addEventListener('input', () => {
 document.getElementById('fab-add').addEventListener('click', () => openForm(null));
 document.getElementById('btn-add-desktop').addEventListener('click', () => openForm(null));
 document.getElementById('btn-cancel-form').addEventListener('click', closeForm);
-modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeForm(); });
+
 
 function openForm(source, opts = {}) {
   formEl.reset();
@@ -1167,6 +1395,10 @@ formEl.addEventListener('submit', async (e) => {
     errBox.textContent = '利用日・時間・管轄・施設は必須です。';
     errBox.classList.remove('hidden');
     return;
+  }
+  if (data.status === '予約済' && hasOverlap(data, editingId)) {
+    const proceed = confirm('同じ日時・施設・コートに、すでに別の予約があります。このまま保存しますか?');
+    if (!proceed) return;
   }
   try {
     if (editingId) await updateDoc(doc(db, 'reservations', editingId), data);
