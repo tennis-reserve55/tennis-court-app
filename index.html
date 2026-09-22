@@ -264,6 +264,7 @@
   .r-card .when { font-weight: 700; }
   .r-card.is-inactive .when, .r-card.is-inactive .where { text-decoration: line-through; color: var(--muted); }
   .r-card .where { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 6px; }
+  .r-card .card-meta { color: var(--muted); font-size: 0.8rem; }
   .r-card .card-actions { display: flex; gap: 6px; margin-top: 10px; }
 
   .badge {
@@ -569,6 +570,10 @@
             絞り込み
             <span class="filter-badge hidden" id="filter-count-badge">0</span>
           </button>
+          <button class="filter-trigger" id="btn-toggle-sort">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/><polyline points="17 4 17 20"/><polyline points="13 16 17 20 21 16"/></svg>
+            <span id="sort-order-label">利用日が新しい順</span>
+          </button>
         </div>
 
         <div id="card-list"></div>
@@ -693,11 +698,11 @@
       <div class="field-row">
         <div class="field">
           <label for="f-start">開始時間</label>
-          <input type="time" id="f-start" step="1800" required>
+          <select id="f-start" required></select>
         </div>
         <div class="field">
           <label for="f-end">終了時間</label>
-          <input type="time" id="f-end" step="1800" required>
+          <select id="f-end" required></select>
         </div>
       </div>
       <div class="field">
@@ -916,6 +921,15 @@ const FACILITIES = {
   ]
 };
 const COURT_OPTIONS = ['1', '2', '3', '4', '5', '6', 'A', 'B', 'C', 'D', 'E', 'F'];
+const TIME_OPTIONS = (() => {
+  const list = [];
+  for (let h = 0; h < 24; h++) {
+    for (const m of [0, 30]) {
+      list.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+    }
+  }
+  return list;
+})();
 const SURFACE_OPTIONS = ['オムニ', 'ハード', 'クレー'];
 
 const SURFACE_ACCENT = { 'ハード': 'var(--hard)', 'クレー': 'var(--clay)', 'オムニ': 'var(--omni)' };
@@ -978,6 +992,7 @@ let allAvailability = {};
 let allNicknames = {};
 let editingId = null;
 let filterState = { ward: '', status: '', applicant: '' };
+let sortOrder = localStorage.getItem('sortOrder') === 'asc' ? 'asc' : 'desc';
 
 // ============================================================
 // 認証
@@ -1029,9 +1044,22 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+async function autoMarkPastAsUsed() {
+  const today = startOfToday();
+  const targets = allReservations.filter((r) => !r.deletedAt && r.status === '予約済' && parseDateStr(r.date) < today);
+  for (const r of targets) {
+    try { await updateDoc(doc(db, 'reservations', r.id), { status: '利用済', updatedAt: serverTimestamp() }); }
+    catch (err) { console.error('自動ステータス更新失敗', r.id, err); }
+  }
+}
+
 function subscribeReservations() {
   unsubscribeSnapshot = onSnapshot(RESERVATIONS,
-    (snap) => { allReservations = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
+    (snap) => {
+      allReservations = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      renderAll();
+      autoMarkPastAsUsed();
+    },
     (err) => {
       if (err.code === 'permission-denied') {
         signOut(auth);
@@ -1205,6 +1233,16 @@ function updateFilterBadge() {
 
 const filterSheetBackdrop = document.getElementById('filter-sheet-backdrop');
 document.getElementById('btn-open-filter').addEventListener('click', () => filterSheetBackdrop.classList.remove('hidden'));
+function updateSortLabel() {
+  document.getElementById('sort-order-label').textContent = sortOrder === 'asc' ? '利用日が古い順' : '利用日が新しい順';
+}
+document.getElementById('btn-toggle-sort').addEventListener('click', () => {
+  sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  localStorage.setItem('sortOrder', sortOrder);
+  updateSortLabel();
+  renderAll();
+});
+updateSortLabel();
 document.getElementById('btn-close-filter').addEventListener('click', () => filterSheetBackdrop.classList.add('hidden'));
 
 document.getElementById('btn-reset-filter').addEventListener('click', () => {
@@ -1299,7 +1337,9 @@ function applyFilters(list) {
 }
 
 function renderListViews(active) {
-  const filtered = applyFilters(active).sort((a, b) => b.date.localeCompare(a.date));
+  const filtered = applyFilters(active).sort((a, b) =>
+    sortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)
+  );
   renderCards(filtered);
   renderTable(filtered);
 }
@@ -1357,6 +1397,12 @@ function openDetail(r) {
   }
   if (r.notes) {
     rows.push(`<div class="detail-row"><span class="detail-label">備考</span><span>${escapeHtml(r.notes)}</span></div>`);
+  }
+  if (r.createdAt && typeof r.createdAt.toDate === 'function') {
+    const cd = r.createdAt.toDate();
+    const cdDate = `${cd.getFullYear()}/${cd.getMonth() + 1}/${cd.getDate()}`;
+    const cdTime = `${String(cd.getHours()).padStart(2, '0')}:${String(cd.getMinutes()).padStart(2, '0')}`;
+    rows.push(`<div class="detail-row"><span class="detail-label">作成日時</span><span>${escapeHtml(cdDate)} ${escapeHtml(cdTime)}</span></div>`);
   }
 
   document.getElementById('detail-modal-body').innerHTML = `
@@ -1435,6 +1481,7 @@ function renderCards(list) {
           </span>
         </div>
         <div class="where">${escapeHtml(r.ward)} ${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</div>
+        <div class="card-meta">予約者:${escapeHtml(applicantLabel(r))}</div>
       </div>`;
   }).join('');
 }
@@ -1729,9 +1776,15 @@ const wardSelect = document.getElementById('f-ward');
 const facilitySelect = document.getElementById('f-facility');
 const courtSelect = document.getElementById('f-court');
 const surfaceSelect = document.getElementById('f-surface');
+const startSelect = document.getElementById('f-start');
+const endSelect = document.getElementById('f-end');
 
 Object.keys(WARD_RULES).forEach((w) => {
   const o = document.createElement('option'); o.value = w; o.textContent = w; wardSelect.appendChild(o);
+});
+TIME_OPTIONS.forEach((t) => {
+  startSelect.appendChild(new Option(t, t));
+  endSelect.appendChild(new Option(t, t));
 });
 
 function fillSelect(selectEl, values, currentValue) {
