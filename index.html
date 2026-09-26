@@ -304,6 +304,7 @@
   .hero-deadline-row svg { width: 13px; height: 13px; flex-shrink: 0; }
   .hero-deadline-row.urgent { color: var(--urgent); }
   .hero.empty { color: var(--ink); text-align: center; padding: 22px; }
+  .hero:not(.empty) { cursor: pointer; }
 
   /* ---------- カード(スマホ) ---------- */
   #card-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1085,7 +1086,7 @@ function escapeHtml(str) {
 function initials(name) { return (name || '?').trim().slice(0, 1); }
 function facilityMapsLink(r) {
   const query = encodeURIComponent(`${r.ward} ${r.facility}`);
-  return `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:inherit; text-decoration:none;">${escapeHtml(r.facility)}</a>`;
+  return `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="text-decoration:underline; text-underline-offset:2px;">${escapeHtml(r.facility)}</a>`;
 }
 
 function timeToMinutes(t) {
@@ -1111,6 +1112,7 @@ let allReservations = [];
 let allAvailability = {};
 let allNicknames = {};
 let editingId = null;
+let heroReservationId = null;
 let filterState = { ward: '', status: '', applicant: '' };
 let sortOrder = localStorage.getItem('sortOrder') === 'asc' ? 'asc' : 'desc';
 let selectionMode = false;
@@ -1529,8 +1531,9 @@ function renderHero(active) {
     .sort((a, b) => a.date.localeCompare(b.date));
   const hero = document.getElementById('hero');
   hero.className = 'hero';
-  if (upcoming.length === 0) { hero.classList.add('empty'); hero.innerHTML = '次の予約はありません'; return; }
+  if (upcoming.length === 0) { heroReservationId = null; hero.classList.add('empty'); hero.innerHTML = '次の予約はありません'; return; }
   const r = upcoming[0];
+  heroReservationId = r.id;
   const dateObj = parseDateStr(r.date);
   const confirmDeadline = getConfirmDeadline(dateObj, r.ward);
   const cancelDeadline = getCancelDeadline(dateObj, r.ward);
@@ -1736,6 +1739,12 @@ document.addEventListener('click', (e) => {
   }
   if (tapEl.classList.contains('trash-tap-only')) return;
   const r = allReservations.find((x) => x.id === id);
+  if (r) openDetail(r);
+});
+
+document.getElementById('hero').addEventListener('click', () => {
+  if (!heroReservationId) return;
+  const r = allReservations.find((x) => x.id === heroReservationId);
   if (r) openDetail(r);
 });
 
