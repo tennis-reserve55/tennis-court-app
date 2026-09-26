@@ -27,6 +27,9 @@
     --clay: #B5602E;
     --hard: #2F5D63;
     --omni: #56682F;
+    --hard-badge: var(--hard);
+    --clay-badge: #9A5227;
+    --omni-badge: var(--omni);
     --urgent: #A63A3A;
     --urgent-bg: #F3E1DE;
     --link: #2F5D63;
@@ -270,13 +273,13 @@
     background: var(--surface-2); border: 1px solid var(--border-strong); color: var(--ink);
     font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap;
   }
-  .badge-surface { font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; color: var(--ink); }
+  .badge-surface { font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; color: #fff; }
 
   /* ---------- 次の予約(ヒーロー) ---------- */
   .hero {
     border: 1px solid var(--border-strong); border-left: 5px solid var(--accent, var(--ink-soft));
     border-radius: var(--radius);
-    background: color-mix(in srgb, var(--accent, var(--ink-soft)) 12%, var(--surface));
+    background: var(--surface);
     padding: 16px 18px; margin-bottom: 22px;
   }
   .hero-row0 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -633,7 +636,7 @@
           <table class="r-table">
             <thead>
               <tr>
-                <th class="select-th"></th><th>日時</th><th>施設</th><th>コート</th><th>サーフェス</th><th>ステータス</th>
+                <th class="select-th"></th><th>日時</th><th>管轄</th><th>施設</th><th>コート</th><th>サーフェス</th><th>ステータス</th>
                 <th>キャンセル期限</th><th>予約者</th>
               </tr>
             </thead>
@@ -1019,6 +1022,7 @@ const TIME_OPTIONS = (() => {
 const SURFACE_OPTIONS = ['オムニ', 'ハード', 'クレー'];
 
 const SURFACE_ACCENT = { 'ハード': 'var(--hard)', 'クレー': 'var(--clay)', 'オムニ': 'var(--omni)' };
+const SURFACE_ACCENT_BADGE = { 'ハード': 'var(--hard-badge)', 'クレー': 'var(--clay-badge)', 'オムニ': 'var(--omni-badge)' };
 const INACTIVE_STATUSES = ['キャンセル', '利用済', '落選'];
 
 // ============================================================
@@ -1519,16 +1523,19 @@ function renderHero(active) {
       <span class="hero-label">${ICON_NEXT}次の予約</span>
       <span class="card-icon-text">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
     </div>
-    <div class="hero-row1">
-      <span class="hero-date">${fmtDateJP(dateObj)}</span>
+    <div class="hero-row1" style="flex-wrap:wrap;gap:8px;">
+      <span style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span class="hero-date">${fmtDateJP(dateObj)}</span>
+        <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+      </span>
       <span class="card-badges">
         <span class="badge-neutral">${escapeHtml(r.ward)}</span>
-        ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+        ${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : ''}
       </span>
     </div>
-    <div class="hero-row2">
-      <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
-      <span class="card-icon-text">${ICON_PIN}<span>${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</span></span>
+    <div class="hero-row2" style="flex-wrap:nowrap;">
+      <span class="card-icon-text" style="min-width:0;flex:1;">${ICON_PIN}<span>${escapeHtml(r.facility)}</span></span>
+      ${r.court ? `<span class="badge-neutral" style="flex-shrink:0;">${escapeHtml(r.court)}</span>` : ''}
     </div>
     ${deadlineBoxHtml}
   `;
@@ -1694,7 +1701,6 @@ function selectIndicatorHtml(id) {
 function cardInnerHtml(r) {
   const dateObj = parseDateStr(r.date);
   const inactive = INACTIVE_STATUSES.includes(r.status);
-  const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
   return `
         <div class="card-row1">
           <span class="card-date">${fmtDateJP(dateObj)}</span>
@@ -1707,12 +1713,15 @@ function cardInnerHtml(r) {
           <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
           <span class="card-badges">
             <span class="badge-neutral">${escapeHtml(r.ward)}</span>
-            ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+            ${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : ''}
           </span>
         </div>
         <div class="card-row3">
-          <span class="card-icon-text">${ICON_PIN}<span>${escapeHtml(r.facility)} ${escapeHtml(r.court || '')}</span></span>
-          <span class="card-icon-text">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
+          <span style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
+            <span class="card-icon-text" style="min-width:0;">${ICON_PIN}<span>${escapeHtml(r.facility)}</span></span>
+            ${r.court ? `<span class="badge-neutral" style="flex-shrink:0;">${escapeHtml(r.court)}</span>` : ''}
+          </span>
+          <span class="card-icon-text" style="flex-shrink:0;">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
         </div>`;
 }
 
@@ -1734,7 +1743,7 @@ function renderCards(list) {
 function renderTable(list) {
   const tbody = document.getElementById('table-body');
   document.getElementById('table-wrap').classList.toggle('selection-mode', selectionMode);
-  if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="empty-state">条件に合う予約がありません</td></tr>`; return; }
+  if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="empty-state">条件に合う予約がありません</td></tr>`; return; }
   tbody.innerHTML = list.map((r) => {
     const dateObj = parseDateStr(r.date);
     const inactive = INACTIVE_STATUSES.includes(r.status);
@@ -1745,9 +1754,10 @@ function renderTable(list) {
       <tr class="r-row-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
         <td class="select-td">${selectIndicatorHtml(r.id)}</td>
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
-        <td class="${cellClass}">${escapeHtml(r.ward)} ${escapeHtml(r.facility)}</td>
+        <td class="${cellClass}">${escapeHtml(r.ward)}</td>
+        <td class="${cellClass}">${escapeHtml(r.facility)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
-        <td>${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : '-'}</td>
+        <td>${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : '-'}</td>
         <td>${r.visibleTo ? `<span class="private-flag" style="vertical-align:middle; margin-right:4px;" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}<span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
         <td>${isConfirmed ? fmtMD(getCancelDeadline(dateObj, r.ward)) : '-'}</td>
         <td>${escapeHtml(applicantLabel(r))}</td>
