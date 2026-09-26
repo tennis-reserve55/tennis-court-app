@@ -377,7 +377,8 @@
   }
   .avail-toggle button.selected.is-free { background: var(--avail-free); color: #fff; border-color: var(--avail-free); }
   .avail-toggle button.selected.is-busy { background: var(--avail-busy); color: #fff; border-color: var(--avail-busy); }
-  .avail-memo-input { flex: 1; border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 9px; font-size: 0.82rem; background: var(--paper); min-width: 0; }
+  .avail-memo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .avail-memo-input { flex: 1; border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 10px; font-size: 0.85rem; background: var(--paper); min-width: 0; }
   .avail-clear-btn { border: none; background: none; color: var(--ink); padding: 4px; flex-shrink: 0; display: flex; align-items: center; }
   .avail-clear-btn svg { width: 14px; height: 14px; }
   .avail-readonly-value { font-size: 0.82rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border-strong); }
@@ -659,6 +660,12 @@
 
       <!-- ---- ゴミ箱ビュー ---- -->
       <section id="view-trash" class="hidden">
+        <div class="filters-block">
+          <button class="filter-trigger" id="btn-toggle-trash-selection">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 9"/></svg>
+            選択
+          </button>
+        </div>
         <div id="trash-list"></div>
       </section>
 
@@ -738,10 +745,16 @@
     <span id="bulk-count-label">0件選択中</span>
     <div style="display:flex; gap:8px;">
       <button type="button" class="icon-btn" id="btn-bulk-cancel">キャンセル</button>
-      <button type="button" class="icon-btn danger" id="btn-bulk-trash">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
-        ゴミ箱に移動
-      </button>
+      <span id="bulk-actions-list">
+        <button type="button" class="icon-btn danger" id="btn-bulk-trash">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+          ゴミ箱に移動
+        </button>
+      </span>
+      <span id="bulk-actions-trash" class="hidden" style="display:flex; gap:8px;">
+        <button type="button" class="icon-btn" id="btn-bulk-restore">復元</button>
+        <button type="button" class="icon-btn danger" id="btn-bulk-purge">完全に削除</button>
+      </span>
     </div>
   </div>
 </div>
@@ -874,7 +887,7 @@
     <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:0;">予約者やカレンダーの表示に使われます。自分のアカウントの分だけ設定できます。</p>
     <div class="field">
       <label for="nickname-input">ニックネーム</label>
-      <input type="text" id="nickname-input" maxlength="10" placeholder="例:深">
+      <input type="text" id="nickname-input" maxlength="10">
     </div>
     <div class="modal-actions">
       <button type="button" class="btn-secondary" id="btn-nickname-cancel">キャンセル</button>
@@ -1226,11 +1239,19 @@ document.getElementById('btn-nickname-save').addEventListener('click', async () 
 // タブ/ナビ切り替え(サイドバー・下部タブ共通)
 // ============================================================
 const views = { list: document.getElementById('view-list'), calendar: document.getElementById('view-calendar'), trash: document.getElementById('view-trash'), hidden: document.getElementById('view-hidden'), links: document.getElementById('view-links') };
+let currentView = 'list';
 document.querySelectorAll('.nav-item').forEach((btn) => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.view;
+    currentView = target;
+    if (selectionMode) {
+      selectionMode = false;
+      selectedIds.clear();
+      updateBulkBar();
+    }
     document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.view === target));
     Object.entries(views).forEach(([key, el]) => el.classList.toggle('hidden', key !== target));
+    renderAll();
     window.scrollTo(0, 0);
   });
 });
@@ -1317,23 +1338,38 @@ function updateBulkBar() {
   bar.classList.toggle('visible', selectionMode);
   document.querySelector('.bottom-tabs').classList.toggle('hidden', selectionMode);
   document.getElementById('fab-add').classList.toggle('hidden', selectionMode);
+  const isTrashView = currentView === 'trash';
+  document.getElementById('bulk-actions-list').classList.toggle('hidden', isTrashView);
+  document.getElementById('bulk-actions-trash').classList.toggle('hidden', !isTrashView);
 }
-document.getElementById('btn-toggle-selection').addEventListener('click', () => {
+function toggleSelectionMode() {
   selectionMode = !selectionMode;
   if (!selectionMode) selectedIds.clear();
   updateBulkBar();
   renderAll();
-});
+}
+document.getElementById('btn-toggle-selection').addEventListener('click', toggleSelectionMode);
+document.getElementById('btn-toggle-trash-selection').addEventListener('click', toggleSelectionMode);
 document.getElementById('btn-bulk-cancel').addEventListener('click', () => {
   selectionMode = false;
   selectedIds.clear();
   updateBulkBar();
   renderAll();
 });
+function getOwnedSelectedTargets() {
+  const targets = [...selectedIds].map((id) => allReservations.find((r) => r.id === id)).filter((r) => r && isOwner(r));
+  return { targets, skipped: selectedIds.size - targets.length };
+}
+function finishBulkAction() {
+  selectionMode = false;
+  selectedIds.clear();
+  updateBulkBar();
+  renderAll();
+}
+
 document.getElementById('btn-bulk-trash').addEventListener('click', async () => {
   if (selectedIds.size === 0) return;
-  const targets = [...selectedIds].map((id) => allReservations.find((r) => r.id === id)).filter((r) => r && isOwner(r));
-  const skipped = selectedIds.size - targets.length;
+  const { targets, skipped } = getOwnedSelectedTargets();
   if (targets.length === 0) {
     alert('選択した予約はすべて、他の人が作成したものだったため削除できません。');
     return;
@@ -1346,10 +1382,43 @@ document.getElementById('btn-bulk-trash').addEventListener('click', async () => 
     try { await updateDoc(doc(db, 'reservations', r.id), { deletedAt: serverTimestamp() }); }
     catch (err) { console.error('一括削除失敗', r.id, err); }
   }
-  selectionMode = false;
-  selectedIds.clear();
-  updateBulkBar();
-  renderAll();
+  finishBulkAction();
+});
+
+document.getElementById('btn-bulk-restore').addEventListener('click', async () => {
+  if (selectedIds.size === 0) return;
+  const { targets, skipped } = getOwnedSelectedTargets();
+  if (targets.length === 0) {
+    alert('選択した予約はすべて、他の人が作成したものだったため復元できません。');
+    return;
+  }
+  const msg = skipped > 0
+    ? `${targets.length}件を復元します(${skipped}件は作成者以外のため対象外です)。よろしいですか?`
+    : `${targets.length}件を復元しますか?`;
+  if (!confirm(msg)) return;
+  for (const r of targets) {
+    try { await updateDoc(doc(db, 'reservations', r.id), { deletedAt: null }); }
+    catch (err) { console.error('一括復元失敗', r.id, err); }
+  }
+  finishBulkAction();
+});
+
+document.getElementById('btn-bulk-purge').addEventListener('click', async () => {
+  if (selectedIds.size === 0) return;
+  const { targets, skipped } = getOwnedSelectedTargets();
+  if (targets.length === 0) {
+    alert('選択した予約はすべて、他の人が作成したものだったため削除できません。');
+    return;
+  }
+  const msg = skipped > 0
+    ? `${targets.length}件を完全に削除します(${skipped}件は作成者以外のため対象外です)。元に戻せません。よろしいですか?`
+    : `${targets.length}件を完全に削除します。元に戻せません。よろしいですか?`;
+  if (!confirm(msg)) return;
+  for (const r of targets) {
+    try { await deleteDoc(doc(db, 'reservations', r.id)); }
+    catch (err) { console.error('一括完全削除失敗', r.id, err); }
+  }
+  finishBulkAction();
 });
 
 document.getElementById('btn-close-filter').addEventListener('click', () => filterSheetBackdrop.classList.add('hidden'));
@@ -1600,6 +1669,7 @@ document.addEventListener('click', (e) => {
     renderAll();
     return;
   }
+  if (tapEl.classList.contains('trash-tap-only')) return;
   const r = allReservations.find((x) => x.id === id);
   if (r) openDetail(r);
 });
@@ -1689,13 +1759,21 @@ function renderTrash(trashed) {
   if (trashed.length === 0) { wrap.innerHTML = `<div class="empty-state">ゴミ箱は空です</div>`; return; }
   wrap.innerHTML = trashed.map((r) => {
     const owner = isOwner(r);
-    const actionsHtml = owner
-      ? `<div class="card-actions">
-          <button class="icon-btn" data-action="restore" data-id="${r.id}">復元</button>
-          <button class="icon-btn danger" data-action="purge" data-id="${r.id}">完全に削除</button>
-        </div>`
-      : `<p style="font-size:0.78rem; color:var(--ink); margin:8px 0 0;">復元・完全削除は作成者のみ操作できます。</p>`;
-    return `<div class="r-card">${cardInnerHtml(r)}${actionsHtml}</div>`;
+    let actionsHtml = '';
+    if (!selectionMode) {
+      actionsHtml = owner
+        ? `<div class="card-actions">
+            <button class="icon-btn" data-action="restore" data-id="${r.id}">復元</button>
+            <button class="icon-btn danger" data-action="purge" data-id="${r.id}">完全に削除</button>
+          </div>`
+        : `<p style="font-size:0.78rem; color:var(--ink); margin:8px 0 0;">復元・完全削除は作成者のみ操作できます。</p>`;
+    }
+    return `<div class="r-card r-card-tap trash-tap-only" data-id="${r.id}">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        ${selectIndicatorHtml(r.id)}
+        <div style="flex:1; min-width:0;">${cardInnerHtml(r)}${actionsHtml}</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1825,6 +1903,8 @@ function renderAvailBoxHtml(dateStr) {
           <button type="button" class="avail-status-btn is-free ${my?.status === '空き' ? 'selected' : ''}" data-status="空き">空き</button>
           <button type="button" class="avail-status-btn is-busy ${my?.status === '予定あり' ? 'selected' : ''}" data-status="予定あり">予定あり</button>
         </div>
+      </div>
+      <div class="avail-memo-row">
         <input type="text" class="avail-memo-input" id="avail-my-memo" placeholder="メモ(自分用)" value="${escapeHtml(my?.memo || '')}">
         ${my ? `<button type="button" class="avail-clear-btn" id="btn-avail-clear" title="未入力に戻す">${ICON_X}</button>` : ''}
       </div>
