@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="コート予約">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -1057,6 +1058,10 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 function initials(name) { return (name || '?').trim().slice(0, 1); }
+function facilityMapsLink(r) {
+  const query = encodeURIComponent(`${r.ward} ${r.facility}`);
+  return `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:inherit; text-decoration:none;">${escapeHtml(r.facility)}</a>`;
+}
 
 function timeToMinutes(t) {
   const [h, m] = t.split(':').map(Number);
@@ -1526,7 +1531,7 @@ function renderHero(active) {
     <div class="hero-row1" style="flex-wrap:wrap;gap:8px;">
       <span style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
         <span class="hero-date">${fmtDateJP(dateObj)}</span>
-        <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+        <span class="card-icon-text" style="font-size:0.95rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
       </span>
       <span class="card-badges">
         <span class="badge-neutral">${escapeHtml(r.ward)}</span>
@@ -1534,7 +1539,7 @@ function renderHero(active) {
       </span>
     </div>
     <div class="hero-row2" style="flex-wrap:nowrap;">
-      <span class="card-icon-text" style="min-width:0;flex:1;">${ICON_PIN}<span>${escapeHtml(r.facility)}</span></span>
+      <span class="card-icon-text" style="min-width:0;flex:1;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
       ${r.court ? `<span class="badge-neutral" style="flex-shrink:0;">${escapeHtml(r.court)}</span>` : ''}
     </div>
     ${deadlineBoxHtml}
@@ -1710,7 +1715,7 @@ function cardInnerHtml(r) {
           </span>
         </div>
         <div class="card-row2">
-          <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+          <span class="card-icon-text" style="font-size:0.95rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
           <span class="card-badges">
             <span class="badge-neutral">${escapeHtml(r.ward)}</span>
             ${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : ''}
@@ -1718,7 +1723,7 @@ function cardInnerHtml(r) {
         </div>
         <div class="card-row3">
           <span style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
-            <span class="card-icon-text" style="min-width:0;">${ICON_PIN}<span>${escapeHtml(r.facility)}</span></span>
+            <span class="card-icon-text" style="min-width:0;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
             ${r.court ? `<span class="badge-neutral" style="flex-shrink:0;">${escapeHtml(r.court)}</span>` : ''}
           </span>
           <span class="card-icon-text" style="flex-shrink:0;">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
@@ -1755,7 +1760,7 @@ function renderTable(list) {
         <td class="select-td">${selectIndicatorHtml(r.id)}</td>
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
         <td class="${cellClass}">${escapeHtml(r.ward)}</td>
-        <td class="${cellClass}">${escapeHtml(r.facility)}</td>
+        <td class="${cellClass}">${facilityMapsLink(r)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
         <td>${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : '-'}</td>
         <td>${r.visibleTo ? `<span class="private-flag" style="vertical-align:middle; margin-right:4px;" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}<span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
