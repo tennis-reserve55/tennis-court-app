@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#1C2420">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="コート予約">
+<meta name="apple-mobile-web-app-title" content="テニスコート予約管理">
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -159,6 +159,9 @@
     position: sticky; top: 0; z-index: 30;
   }
   .mobile-header .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1rem; }
+  .header-icon-btn { border: none; background: none; padding: 7px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+  .header-icon-btn svg { width: 20px; height: 20px; }
+  .header-icon-btn:active { background: var(--surface-2); }
   .avatar-btn { position: relative; }
   .avatar-btn img, .avatar-fallback {
     width: 30px; height: 30px; border-radius: 50%; border: none; display: block;
@@ -291,7 +294,7 @@
   .hero-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--ink); }
   .hero-label svg { width: 13px; height: 13px; }
   .hero-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .hero-date { font-size: 1.3rem; font-weight: 900; color: var(--ink); }
+  .hero-date { font-size: 1.1rem; font-weight: 900; color: var(--ink); }
   .hero-row2 { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
   .hero-main { display: flex; flex-direction: column; gap: 14px; }
   .hero-left { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -486,7 +489,7 @@
       border-right: 1px solid var(--border); background: var(--surface); padding: 18px 14px;
       position: sticky; top: 0; height: 100vh;
   }
-  .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; margin-bottom: 22px; padding: 0 6px; }
+  .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 0.88rem; margin-bottom: 22px; padding: 0 6px; }
   .sidebar .sb-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
   .sidebar .sb-nav button {
       display: flex; align-items: center; gap: 10px; border: none; background: none; text-align: left;
@@ -545,31 +548,30 @@
         <line x1="26" y1="64" x2="102" y2="64" stroke="#EFEDE2" stroke-width="6"/>
         <circle cx="64" cy="64" r="12" fill="#B5602E"/>
       </svg>
-      <span>コート予約</span>
+      <span>テニスコート予約管理</span>
     </div>
-    <div class="avatar-btn">
-      <button id="avatar-toggle-mobile" style="border:none; background:none; padding:0;">
-        <img id="user-photo-m" src="" alt="" class="hidden">
-        <div id="user-fallback-m" class="avatar-fallback hidden"></div>
+    <div style="display:flex; align-items:center; gap:2px;">
+      <button class="header-icon-btn" id="btn-view-toggle-m" title="PC表示に切り替える" aria-label="PC表示に切り替える">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
       </button>
-      <div class="avatar-menu hidden" id="avatar-menu-mobile">
-        <div class="who" id="user-name-m"></div>
-        <button class="view-toggle" id="btn-view-toggle-m">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
-          PC表示に切り替える
+      <button class="header-icon-btn" id="btn-theme-toggle-m" title="ダークモードに切り替える" aria-label="ダークモードに切り替える">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+      </button>
+      <button class="header-icon-btn" id="btn-nickname-m" title="ニックネームを設定" aria-label="ニックネームを設定">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3.5a2.1 2.1 0 013 3L7 18l-4 1 1-4z"/></svg>
+      </button>
+      <div class="avatar-btn">
+        <button id="avatar-toggle-mobile" style="border:none; background:none; padding:0;">
+          <img id="user-photo-m" src="" alt="" class="hidden">
+          <div id="user-fallback-m" class="avatar-fallback hidden"></div>
         </button>
-        <button class="view-toggle" id="btn-theme-toggle-m">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
-          <span id="theme-toggle-label-m">ダークモードに切り替える</span>
-        </button>
-        <button class="view-toggle" id="btn-nickname-m">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3.5a2.1 2.1 0 013 3L7 18l-4 1 1-4z"/></svg>
-          ニックネームを設定
-        </button>
-        <button id="btn-signout-m">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-          ログアウト
-        </button>
+        <div class="avatar-menu hidden" id="avatar-menu-mobile">
+          <div class="who" id="user-name-m"></div>
+          <button id="btn-signout-m">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            ログアウト
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -585,7 +587,7 @@
           <line x1="26" y1="64" x2="102" y2="64" stroke="#EFEDE2" stroke-width="6"/>
           <circle cx="64" cy="64" r="12" fill="#B5602E"/>
         </svg>
-        <span>コート予約</span>
+        <span>テニスコート予約管理</span>
       </div>
       <div class="sb-nav">
         <button data-view="list" class="nav-item active">
@@ -1248,7 +1250,8 @@ function getEffectiveTheme() {
 }
 function updateThemeLabels() {
   const next = getEffectiveTheme() === 'dark' ? 'ライトモードに切り替える' : 'ダークモードに切り替える';
-  document.getElementById('theme-toggle-label-m').textContent = next;
+  const btnM = document.getElementById('btn-theme-toggle-m');
+  if (btnM) { btnM.title = next; btnM.setAttribute('aria-label', next); }
   document.getElementById('theme-toggle-label-d').textContent = next;
 }
 function toggleTheme() {
@@ -1572,7 +1575,7 @@ function renderHero(active) {
       <div class="hero-left">
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
           <span class="hero-date">${fmtDateJP(dateObj)}</span>
-          <span class="card-icon-text" style="font-size:0.95rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+          <span class="card-icon-text" style="font-size:1.1rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="card-icon-text" style="min-width:0;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
