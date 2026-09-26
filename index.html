@@ -295,6 +295,7 @@
   .hero-label svg { width: 13px; height: 13px; }
   .hero-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .hero-date { font-size: 1.1rem; font-weight: 900; color: var(--ink); }
+  .hero-time { font-size: 1.1rem; font-weight: 700; }
   .hero-row2 { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
   .hero-main { display: flex; flex-direction: column; gap: 14px; }
   .hero-left { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -456,6 +457,8 @@
     html:not(.force-mobile) .list-panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; }
     html:not(.force-mobile) .hero-main { flex-direction: row; gap: 28px; }
     html:not(.force-mobile) .hero-left { flex: 1; }
+    html:not(.force-mobile) .hero-date { font-size: 1.3rem; }
+    html:not(.force-mobile) .hero-time { font-size: 0.95rem; }
     html:not(.force-mobile) .hero-right { flex: 1; border-top: none; padding-top: 0; border-left: 1px solid var(--border); padding-left: 24px; }
     html:not(.force-mobile) .layout { display: flex; min-height: 100vh; }
     html:not(.force-mobile) .sidebar { display: flex; }
@@ -474,6 +477,8 @@
   html.force-desktop .list-panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; }
   html.force-desktop .hero-main { flex-direction: row; gap: 28px; }
   html.force-desktop .hero-left { flex: 1; }
+  html.force-desktop .hero-date { font-size: 1.3rem; }
+  html.force-desktop .hero-time { font-size: 0.95rem; }
   html.force-desktop .hero-right { flex: 1; border-top: none; padding-top: 0; border-left: 1px solid var(--border); padding-left: 24px; }
   html.force-desktop .layout { display: flex; min-height: 100vh; }
   html.force-desktop .sidebar { display: flex; }
@@ -489,7 +494,7 @@
       border-right: 1px solid var(--border); background: var(--surface); padding: 18px 14px;
       position: sticky; top: 0; height: 100vh;
   }
-  .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 0.88rem; margin-bottom: 22px; padding: 0 6px; }
+  .sidebar .sb-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; margin-bottom: 22px; padding: 0 6px; }
   .sidebar .sb-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
   .sidebar .sb-nav button {
       display: flex; align-items: center; gap: 10px; border: none; background: none; text-align: left;
@@ -587,7 +592,7 @@
           <line x1="26" y1="64" x2="102" y2="64" stroke="#EFEDE2" stroke-width="6"/>
           <circle cx="64" cy="64" r="12" fill="#B5602E"/>
         </svg>
-        <span>テニスコート予約管理</span>
+        <span>コート予約</span>
       </div>
       <div class="sb-nav">
         <button data-view="list" class="nav-item active">
@@ -1575,7 +1580,7 @@ function renderHero(active) {
       <div class="hero-left">
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
           <span class="hero-date">${fmtDateJP(dateObj)}</span>
-          <span class="card-icon-text" style="font-size:1.1rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+          <span class="card-icon-text hero-time">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="card-icon-text" style="min-width:0;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
