@@ -234,7 +234,11 @@
     white-space: nowrap;
   }
   .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .filters-block { margin-bottom: 12px; }
+  .list-panel-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .list-panel-title { display: flex; align-items: baseline; gap: 10px; }
+  .list-panel-heading { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+  .list-panel-count { font-size: 0.78rem; color: var(--ink); }
+  .filters-block { margin-bottom: 18px; }
   .filter-trigger {
     display: inline-flex; align-items: center; gap: 7px;
     border: 1px solid var(--border-strong); background: var(--surface);
@@ -262,7 +266,7 @@
   .private-flag svg { width: 100%; height: 100%; }
   .add-btn-desktop {
     display: none; border: none; background: var(--ink); color: var(--paper);
-    border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; margin-bottom: 20px;
+    border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
   }
 
   /* ---------- 共通:行・バッジ・アイコン付きテキスト ---------- */
@@ -289,7 +293,12 @@
   .hero-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .hero-date { font-size: 1.3rem; font-weight: 900; color: var(--ink); }
   .hero-row2 { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
-  .hero-deadline-box { border-top: 1px solid var(--border); padding-top: 10px; }
+  .hero-main { display: flex; flex-direction: column; gap: 14px; }
+  .hero-left { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hero-right { min-width: 0; border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+  .hero-fee-label { font-size: 0.75rem; font-weight: 700; margin-bottom: 3px; }
+  .hero-fee-amount { font-size: 1.15rem; font-weight: 900; }
+  .hero-fee-amount .hero-fee-detail { font-size: 0.78rem; font-weight: 500; }
   .hero-deadline-row { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
   .hero-deadline-row:last-child { margin-bottom: 0; }
   .hero-deadline-row svg { width: 13px; height: 13px; flex-shrink: 0; }
@@ -328,8 +337,8 @@
   /* ---------- テーブル(PC) ---------- */
   #table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
   table.r-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  table.r-table th, table.r-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  table.r-table th { color: var(--muted); font-weight: 700; font-size: 0.78rem; }
+  table.r-table th, table.r-table td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.r-table th { color: var(--muted); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.02em; border-bottom: 2px solid var(--border-strong); padding-bottom: 12px; }
   table.r-table tr:last-child td { border-bottom: none; }
   table.r-table td.is-inactive-cell { text-decoration: line-through; color: var(--muted); }
   table.r-table .actions-cell { display: flex; gap: 6px; }
@@ -440,6 +449,10 @@
     html:not(.force-mobile) .bottom-tabs { display: none; }
     html:not(.force-mobile) .fab { display: none; }
     html:not(.force-mobile) .add-btn-desktop { display: inline-block; }
+    html:not(.force-mobile) .list-panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; }
+    html:not(.force-mobile) .hero-main { flex-direction: row; gap: 28px; }
+    html:not(.force-mobile) .hero-left { flex: 1; }
+    html:not(.force-mobile) .hero-right { flex: 1; border-top: none; padding-top: 0; border-left: 1px solid var(--border); padding-left: 24px; }
     html:not(.force-mobile) .layout { display: flex; min-height: 100vh; }
     html:not(.force-mobile) .sidebar { display: flex; }
     html:not(.force-mobile) main.content { flex: 1; padding: 24px 28px; max-width: 980px; }
@@ -454,6 +467,10 @@
   html.force-desktop .bottom-tabs { display: none; }
   html.force-desktop .fab { display: none; }
   html.force-desktop .add-btn-desktop { display: inline-block; }
+  html.force-desktop .list-panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; }
+  html.force-desktop .hero-main { flex-direction: row; gap: 28px; }
+  html.force-desktop .hero-left { flex: 1; }
+  html.force-desktop .hero-right { flex: 1; border-top: none; padding-top: 0; border-left: 1px solid var(--border); padding-left: 24px; }
   html.force-desktop .layout { display: flex; min-height: 100vh; }
   html.force-desktop .sidebar { display: flex; }
   html.force-desktop main.content { flex: 1; padding: 24px 28px; max-width: 980px; }
@@ -609,40 +626,48 @@
       <section id="view-list">
         <div id="hero"></div>
 
-        <button class="add-btn-desktop" id="btn-add-desktop">＋ 予約を追加</button>
+        <div class="list-panel">
+          <div class="list-panel-header">
+            <div class="list-panel-title">
+              <span class="list-panel-heading">予約一覧</span>
+              <span class="list-panel-count" id="list-count">全0件</span>
+            </div>
+            <button class="add-btn-desktop" id="btn-add-desktop">＋ 予約を追加</button>
+          </div>
 
-        <div class="filters-block">
-          <button class="filter-trigger" id="btn-ocr-add">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>
-            画像から追加
-          </button>
-          <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
-          <button class="filter-trigger" id="btn-open-filter">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5v6L10.5 20v-7.5z"/></svg>
-            絞り込み
-            <span class="filter-badge hidden" id="filter-count-badge">0</span>
-          </button>
-          <button class="filter-trigger" id="btn-toggle-sort">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/><polyline points="17 4 17 20"/><polyline points="13 16 17 20 21 16"/></svg>
-            <span id="sort-order-label">利用日が新しい順</span>
-          </button>
-          <button class="filter-trigger" id="btn-toggle-selection">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 9"/></svg>
-            選択
-          </button>
-        </div>
+          <div class="filters-block">
+            <button class="filter-trigger" id="btn-ocr-add">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>
+              画像から追加
+            </button>
+            <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
+            <button class="filter-trigger" id="btn-open-filter">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5v6L10.5 20v-7.5z"/></svg>
+              絞り込み
+              <span class="filter-badge hidden" id="filter-count-badge">0</span>
+            </button>
+            <button class="filter-trigger" id="btn-toggle-sort">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/><polyline points="17 4 17 20"/><polyline points="13 16 17 20 21 16"/></svg>
+              <span id="sort-order-label">利用日が新しい順</span>
+            </button>
+            <button class="filter-trigger" id="btn-toggle-selection">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 9"/></svg>
+              選択
+            </button>
+          </div>
 
-        <div id="card-list"></div>
-        <div id="table-wrap">
-          <table class="r-table">
-            <thead>
-              <tr>
-                <th class="select-th"></th><th>日時</th><th>管轄</th><th>施設</th><th>コート</th><th>サーフェス</th><th>ステータス</th>
-                <th>キャンセル期限</th><th>予約者</th>
-              </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-          </table>
+          <div id="card-list"></div>
+          <div id="table-wrap">
+            <table class="r-table">
+              <thead>
+                <tr>
+                  <th class="select-th"></th><th style="width:22px;"></th><th>日時</th><th>管轄</th><th>施設</th><th>コート</th><th>サーフェス</th><th>ステータス</th>
+                  <th>予約者</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1520,7 +1545,19 @@ function renderHero(active) {
   if (cancelDeadline) {
     deadlineLines.push(`<div class="hero-deadline-row">${ICON_WARN}キャンセル期限 ${fmtMD(cancelDeadline)}まで</div>`);
   }
-  const deadlineBoxHtml = deadlineLines.length ? `<div class="hero-deadline-box">${deadlineLines.join('')}</div>` : '';
+
+  let feeHtml = '';
+  if (r.fee != null) {
+    let feeText = `${r.fee.toLocaleString('ja-JP')}円`;
+    if (r.peopleCount != null && r.peopleCount > 0) {
+      const perPerson = Math.ceil(r.fee / r.peopleCount);
+      feeText += `<span class="hero-fee-detail"> (${r.peopleCount}人・1人あたり${perPerson.toLocaleString('ja-JP')}円)</span>`;
+    }
+    feeHtml = `<div><div class="hero-fee-label">料金</div><div class="hero-fee-amount">${feeText}</div></div>`;
+  }
+  const deadlineHtml = deadlineLines.length
+    ? `<div style="${feeHtml ? 'border-top:1px solid var(--border);padding-top:10px;' : ''}">${deadlineLines.join('')}</div>`
+    : '';
 
   hero.style.setProperty('--accent', accent);
   hero.innerHTML = `
@@ -1528,21 +1565,24 @@ function renderHero(active) {
       <span class="hero-label">${ICON_NEXT}次の予約</span>
       <span class="card-icon-text">${ICON_PERSON}<span>${escapeHtml(applicantLabel(r))}</span></span>
     </div>
-    <div class="hero-row1" style="flex-wrap:wrap;gap:8px;">
-      <span style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-        <span class="hero-date">${fmtDateJP(dateObj)}</span>
-        <span class="card-icon-text" style="font-size:0.95rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
-      </span>
-      <span class="card-badges">
-        <span class="badge-neutral">${escapeHtml(r.ward)}</span>
-        ${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : ''}
-      </span>
+    <div class="hero-main">
+      <div class="hero-left">
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+          <span class="hero-date">${fmtDateJP(dateObj)}</span>
+          <span class="card-icon-text" style="font-size:0.95rem;font-weight:700;">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="card-icon-text" style="min-width:0;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
+          ${r.court ? `<span class="badge-neutral">${escapeHtml(r.court)}</span>` : ''}
+          ${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : ''}
+          <span class="badge-neutral">${escapeHtml(r.ward)}</span>
+        </div>
+      </div>
+      <div class="hero-right">
+        ${feeHtml}
+        ${deadlineHtml}
+      </div>
     </div>
-    <div class="hero-row2" style="flex-wrap:nowrap;">
-      <span class="card-icon-text" style="min-width:0;flex:1;font-size:0.95rem;font-weight:700;">${ICON_PIN}<span>${facilityMapsLink(r)}</span></span>
-      ${r.court ? `<span class="badge-neutral" style="flex-shrink:0;">${escapeHtml(r.court)}</span>` : ''}
-    </div>
-    ${deadlineBoxHtml}
   `;
 }
 
@@ -1558,6 +1598,8 @@ function renderListViews(active) {
   const filtered = applyFilters(active).sort((a, b) =>
     sortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)
   );
+  const countEl = document.getElementById('list-count');
+  if (countEl) countEl.textContent = `全${filtered.length}件`;
   renderCards(filtered);
   renderTable(filtered);
 }
@@ -1754,17 +1796,16 @@ function renderTable(list) {
     const inactive = INACTIVE_STATUSES.includes(r.status);
     const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
     const cellClass = inactive ? 'is-inactive-cell' : '';
-    const isConfirmed = r.status === '予約済';
     return `
       <tr class="r-row-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
         <td class="select-td">${selectIndicatorHtml(r.id)}</td>
+        <td>${r.visibleTo ? `<span class="private-flag" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}</td>
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
         <td class="${cellClass}">${escapeHtml(r.ward)}</td>
         <td class="${cellClass}">${facilityMapsLink(r)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
         <td>${r.surface ? `<span class="badge-surface" style="background:${SURFACE_ACCENT_BADGE[r.surface] || 'var(--ink-soft)'}">${escapeHtml(r.surface)}</span>` : '-'}</td>
-        <td>${r.visibleTo ? `<span class="private-flag" style="vertical-align:middle; margin-right:4px;" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}<span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
-        <td>${isConfirmed ? fmtMD(getCancelDeadline(dateObj, r.ward)) : '-'}</td>
+        <td><span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
         <td>${escapeHtml(applicantLabel(r))}</td>
       </tr>`;
   }).join('');
