@@ -328,9 +328,6 @@
   table.r-table th { color: var(--muted); font-weight: 700; font-size: 0.78rem; }
   table.r-table tr:last-child td { border-bottom: none; }
   table.r-table td.is-inactive-cell { text-decoration: line-through; color: var(--muted); }
-  table.r-table tr:not(.is-inactive) td.ward-cell { border-left: 3px solid var(--accent, var(--border-strong)); }
-  table.r-table tr.is-inactive td.ward-cell { border-left: 3px solid var(--border-strong); }
-  table.r-table .deadline-cell.urgent { color: var(--urgent); font-weight: 700; }
   table.r-table .actions-cell { display: flex; gap: 6px; }
 
   #card-list { display: block; }
@@ -611,6 +608,11 @@
         <button class="add-btn-desktop" id="btn-add-desktop">＋ 予約を追加</button>
 
         <div class="filters-block">
+          <button class="filter-trigger" id="btn-ocr-add">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>
+            画像から追加
+          </button>
+          <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
           <button class="filter-trigger" id="btn-open-filter">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5v6L10.5 20v-7.5z"/></svg>
             絞り込み
@@ -631,8 +633,8 @@
           <table class="r-table">
             <thead>
               <tr>
-                <th class="select-th"></th><th>日時</th><th>施設</th><th>コート</th><th>ステータス</th>
-                <th>確定期限</th><th>キャンセル期限</th><th>予約者</th>
+                <th class="select-th"></th><th>日時</th><th>施設</th><th>コート</th><th>サーフェス</th><th>ステータス</th>
+                <th>キャンセル期限</th><th>予約者</th>
               </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -763,6 +765,7 @@
 <div id="modal-backdrop" class="modal-backdrop hidden">
   <div class="modal">
     <h2 id="modal-title">予約を追加</h2>
+    <div id="form-ocr-notice" class="hidden" style="background:var(--pending-bg); color:var(--pending-text); border-radius:8px; padding:8px 10px; font-size:0.82rem; margin-bottom:10px;">画像から自動で入力しました。内容をご確認のうえ保存してください。</div>
     <div id="form-error" class="hidden"></div>
     <form id="r-form">
       <div class="field">
@@ -896,10 +899,19 @@
   </div>
 </div>
 
+<!-- ============ OCR読み取り中オーバーレイ ============ -->
+<div id="ocr-loading-backdrop" class="modal-backdrop hidden">
+  <div class="modal" style="text-align:center;">
+    <p id="ocr-loading-text" style="font-weight:700; margin:8px 0;">画像を読み取っています…</p>
+    <p style="font-size:0.82rem; color:var(--ink-soft);">スマホの場合、数秒〜十数秒かかることがあります。</p>
+  </div>
+</div>
+
 <script type="module">
 // ============================================================
 // Firebase 初期化
 // ============================================================
+import { createWorker } from "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
@@ -1512,7 +1524,7 @@ function renderHero(active) {
       <span class="hero-date">${fmtDateJP(dateObj)}</span>
       <span class="card-badges">
         <span class="badge-neutral">${escapeHtml(r.ward)}</span>
-        ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 30%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+        ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
       </span>
     </div>
     <div class="hero-row2">
@@ -1696,7 +1708,7 @@ function cardInnerHtml(r) {
           <span class="card-icon-text">${ICON_CLOCK}<span>${escapeHtml(r.startTime)}〜${escapeHtml(r.endTime)}</span></span>
           <span class="card-badges">
             <span class="badge-neutral">${escapeHtml(r.ward)}</span>
-            ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 30%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
+            ${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : ''}
           </span>
         </div>
         <div class="card-row3">
@@ -1730,24 +1742,14 @@ function renderTable(list) {
     const accent = SURFACE_ACCENT[r.surface] || 'var(--border-strong)';
     const cellClass = inactive ? 'is-inactive-cell' : '';
     const isConfirmed = r.status === '予約済';
-    let confirmCellHtml = '-', confirmUrgent = false;
-    if (isConfirmed) {
-      const confirmDeadline = getConfirmDeadline(dateObj, r.ward);
-      const today = startOfToday();
-      if (confirmDeadline && confirmDeadline >= today) {
-        const daysLeft = daysBetween(new Date(confirmDeadline), new Date());
-        confirmUrgent = daysLeft <= 3;
-        confirmCellHtml = `(${WARD_RULES[r.ward].confirmLabel}) ${fmtMD(confirmDeadline)}`;
-      }
-    }
     return `
       <tr class="r-row-tap ${inactive ? 'is-inactive' : ''}" style="--accent:${accent}" data-id="${r.id}">
         <td class="select-td">${selectIndicatorHtml(r.id)}</td>
         <td class="${cellClass}">${fmtDateJP(dateObj)} ${escapeHtml(r.startTime)}</td>
-        <td class="ward-cell ${cellClass}">${escapeHtml(r.ward)} ${escapeHtml(r.facility)}</td>
+        <td class="${cellClass}">${escapeHtml(r.ward)} ${escapeHtml(r.facility)}</td>
         <td class="${cellClass}">${escapeHtml(r.court || '-')}</td>
+        <td>${r.surface ? `<span class="badge-surface" style="background:color-mix(in srgb, ${accent} 55%, transparent)">${escapeHtml(r.surface)}</span>` : '-'}</td>
         <td>${r.visibleTo ? `<span class="private-flag" style="vertical-align:middle; margin-right:4px;" title="自分だけに表示中">${ICON_LOCK}</span>` : ''}<span class="badge ${inactive ? 'status-inactive' : 'status-' + r.status}">${escapeHtml(r.status)}</span></td>
-        <td class="deadline-cell ${confirmUrgent ? 'urgent' : ''}">${escapeHtml(confirmCellHtml)}</td>
         <td>${isConfirmed ? fmtMD(getCancelDeadline(dateObj, r.ward)) : '-'}</td>
         <td>${escapeHtml(applicantLabel(r))}</td>
       </tr>`;
@@ -2070,14 +2072,86 @@ facilitySelect.addEventListener('change', applySurfaceFromFacility);
 
 document.getElementById('fab-add').addEventListener('click', () => openForm(null));
 document.getElementById('btn-add-desktop').addEventListener('click', () => openForm(null));
+
+// ============================================================
+// 画像から読み取って追加(OCR)
+// ============================================================
+function toHalfWidth(s) {
+  return s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+}
+function parseReservationText(text) {
+  const guess = {};
+
+  if (/墨田区/.test(text)) guess.ward = '墨田区';
+  else if (/大田区|うぐいすネット/.test(text)) guess.ward = '大田区';
+  else if (/都立公園|スポレク|東京都/.test(text)) guess.ward = '都営';
+  else if (/葛飾区/.test(text)) guess.ward = '葛飾区';
+
+  const dateMatch = text.match(/利用日\s*[:：]\s*(\d{4})[\/年](\d{1,2})[\/月](\d{1,2})/) || text.match(/(\d{4})[\/年](\d{1,2})[\/月](\d{1,2})/);
+  if (dateMatch) {
+    guess.date = `${dateMatch[1]}-${String(dateMatch[2]).padStart(2, '0')}-${String(dateMatch[3]).padStart(2, '0')}`;
+  }
+
+  const timeMatch = text.match(/利用時間\s*[:：]\s*(\d{1,2})[:：](\d{2})\s*[-~〜～]\s*(\d{1,2})[:：](\d{2})/) || text.match(/(\d{1,2})[:：](\d{2})\s*[-~〜～]\s*(\d{1,2})[:：](\d{2})/);
+  if (timeMatch) {
+    guess.startTime = `${String(timeMatch[1]).padStart(2, '0')}:${timeMatch[2]}`;
+    guess.endTime = `${String(timeMatch[3]).padStart(2, '0')}:${timeMatch[4]}`;
+  }
+
+  const feeMatch = text.match(/施設使用料\s*[:：]?\s*([\d,]+)\s*円/) || text.match(/([\d,]+)\s*円/);
+  if (feeMatch) guess.fee = Number(feeMatch[1].replace(/,/g, ''));
+
+  const wardsToCheck = guess.ward ? [guess.ward] : Object.keys(FACILITIES);
+  wardLoop:
+  for (const w of wardsToCheck) {
+    for (const [name] of FACILITIES[w] || []) {
+      if (text.includes(name)) {
+        guess.facility = name;
+        if (!guess.ward) guess.ward = w;
+        break wardLoop;
+      }
+    }
+  }
+
+  const courtMatch = text.match(/([A-FＡ-Ｆ1-6１-６])\s*面/) || text.match(/コート\s*[:：]?\s*([A-FＡ-Ｆ1-6１-６])/);
+  if (courtMatch) guess.court = toHalfWidth(courtMatch[1]);
+
+  return guess;
+}
+
+document.getElementById('btn-ocr-add').addEventListener('click', () => {
+  document.getElementById('ocr-file-input').click();
+});
+document.getElementById('ocr-file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const backdrop = document.getElementById('ocr-loading-backdrop');
+  backdrop.classList.remove('hidden');
+  try {
+    const worker = await createWorker('jpn');
+    const { data: { text } } = await worker.recognize(file);
+    await worker.terminate();
+    const guess = parseReservationText(text);
+    backdrop.classList.add('hidden');
+    openForm(null, { guess });
+  } catch (err) {
+    backdrop.classList.add('hidden');
+    console.error('OCR読み取り失敗', err);
+    alert('画像の読み取りに失敗しました。お手数ですが手動で入力してください。');
+    openForm(null);
+  }
+});
 document.getElementById('btn-cancel-form').addEventListener('click', closeForm);
 
 
 function openForm(source, opts = {}) {
   formEl.reset();
   document.getElementById('form-error').classList.add('hidden');
-  fillSelect(courtSelect, COURT_OPTIONS, source ? source.court : null);
-  fillSelect(surfaceSelect, SURFACE_OPTIONS, source ? source.surface : null);
+  document.getElementById('form-ocr-notice').classList.toggle('hidden', !opts.guess);
+  const g = opts.guess || {};
+  fillSelect(courtSelect, COURT_OPTIONS, source ? source.court : (g.court || null));
+  fillSelect(surfaceSelect, SURFACE_OPTIONS, source ? source.surface : (g.surface || null));
 
   if (source) {
     wardSelect.value = source.ward;
@@ -2104,11 +2178,14 @@ function openForm(source, opts = {}) {
   } else {
     editingId = null;
     document.getElementById('modal-title').textContent = '予約を追加';
-    updateFacilityOptions(null);
+    wardSelect.value = g.ward || '';
+    updateFacilityOptions(g.facility || null);
     document.getElementById('f-status').value = '';
-    wardSelect.value = '';
-    startSelect.value = '';
-    endSelect.value = '';
+    document.getElementById('f-date').value = g.date || '';
+    document.getElementById('f-fee').value = g.fee != null ? g.fee : '';
+    document.getElementById('f-notes').value = g.notes || '';
+    startSelect.value = g.startTime || '';
+    endSelect.value = g.endTime || '';
   }
   syncAllPlaceholders();
   modalBackdrop.classList.remove('hidden');
