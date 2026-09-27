@@ -1994,13 +1994,13 @@ function renderAvailBoxHtml(dateStr) {
         </div>
       </div>
       <div class="avail-memo-row">
-        <input type="text" class="avail-memo-input" id="avail-my-memo" placeholder="メモ(自分用)" value="${escapeHtml(my?.memo || '')}">
+        <input type="text" class="avail-memo-input" id="avail-my-memo" placeholder="メモ" value="${escapeHtml(my?.memo || '')}">
         ${my ? `<button type="button" class="avail-clear-btn" id="btn-avail-clear" title="未入力に戻す">${ICON_X}</button>` : ''}
       </div>
       ${othersHtml}
       <div class="shared-memo-box">
-        <label>この日の共有メモ</label>
-        <textarea id="cal-shared-memo" rows="2" placeholder="みんなで見えるメモ">${escapeHtml(shared)}</textarea>
+        <label>この日についてのメモ</label>
+        <textarea id="cal-shared-memo" rows="2" placeholder="この日についてのメモ">${escapeHtml(shared)}</textarea>
       </div>
     </div>`;
 }
