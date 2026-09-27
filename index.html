@@ -419,6 +419,7 @@
   .modal h2 { margin: 0 0 16px; font-size: 1.15rem; font-weight: 900; }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 5px; }
+  .required-tag { font-size: 0.72rem; font-weight: 700; margin-left: 3px; }
   .field input, .field select, .field textarea {
     width: 100%; border: 1px solid var(--border-strong); border-radius: 8px;
     padding: 10px 11px; background: var(--paper); appearance: none; -webkit-appearance: none;
@@ -818,25 +819,25 @@
     <div id="form-error" class="hidden"></div>
     <form id="r-form">
       <div class="field">
-        <label for="f-date">利用日</label>
+        <label for="f-date">利用日<span class="required-tag">(必須)</span></label>
         <input type="date" id="f-date" required>
       </div>
       <div class="field-row">
         <div class="field">
-          <label for="f-start">開始時間</label>
+          <label for="f-start">開始時間<span class="required-tag">(必須)</span></label>
           <select id="f-start" required></select>
         </div>
         <div class="field">
-          <label for="f-end">終了時間</label>
+          <label for="f-end">終了時間<span class="required-tag">(必須)</span></label>
           <select id="f-end" required></select>
         </div>
       </div>
       <div class="field">
-        <label for="f-ward">管轄</label>
+        <label for="f-ward">管轄<span class="required-tag">(必須)</span></label>
         <select id="f-ward" required></select>
       </div>
       <div class="field">
-        <label for="f-facility">施設</label>
+        <label for="f-facility">施設<span class="required-tag">(必須)</span></label>
         <select id="f-facility" required></select>
       </div>
       <div class="field-row">
@@ -850,7 +851,7 @@
         </div>
       </div>
       <div class="field">
-        <label>ステータス</label>
+        <label>ステータス<span class="required-tag">(必須)</span></label>
         <select id="f-status" required>
           <option value="" disabled selected>選択してください</option>
           <option value="抽選中">抽選中</option>
@@ -2298,7 +2299,7 @@ formEl.addEventListener('submit', async (e) => {
     updatedAt: serverTimestamp()
   };
   if (!data.date || !data.startTime || !data.endTime || !data.ward || !data.facility || !data.status) {
-    errBox.textContent = '利用日・時間・管轄・施設は必須です。';
+    errBox.textContent = '利用日・時間・管轄・施設・ステータスは必須です。';
     errBox.classList.remove('hidden');
     return;
   }
