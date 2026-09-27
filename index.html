@@ -572,6 +572,18 @@
         </button>
         <div class="avatar-menu hidden" id="avatar-menu-mobile">
           <div class="who" id="user-name-m"></div>
+          <button class="view-toggle" id="btn-view-toggle-m-menu">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
+            PC表示に切り替える
+          </button>
+          <button class="view-toggle" id="btn-theme-toggle-m-menu">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+            <span id="theme-toggle-label-m-menu">ダークモードに切り替える</span>
+          </button>
+          <button class="view-toggle" id="btn-nickname-m-menu">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3.5a2.1 2.1 0 013 3L7 18l-4 1 1-4z"/></svg>
+            ニックネームを設定
+          </button>
           <button id="btn-signout-m">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
             ログアウト
@@ -924,7 +936,7 @@
 <div id="nickname-modal-backdrop" class="modal-backdrop hidden">
   <div class="modal">
     <h2>ニックネームを設定</h2>
-    <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:0;">予約者やカレンダーの表示に使われます。自分のアカウントの分だけ設定できます。</p>
+    <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:0;">予約者やカレンダーの表示に使われます。自分のアカウントの分だけ設定できます。空にして保存すると、ニックネームなし(メールアドレスの一部を表示)に戻せます。</p>
     <div class="field">
       <label for="nickname-input">ニックネーム</label>
       <input type="text" id="nickname-input" maxlength="10">
@@ -1243,6 +1255,7 @@ function setViewOverride(mode) {
   if (mode === 'mobile') document.documentElement.classList.add('force-mobile');
 }
 document.getElementById('btn-view-toggle-m').addEventListener('click', () => setViewOverride('desktop'));
+document.getElementById('btn-view-toggle-m-menu').addEventListener('click', () => setViewOverride('desktop'));
 document.getElementById('btn-view-toggle-d').addEventListener('click', () => setViewOverride('mobile'));
 
 // ============================================================
@@ -1257,6 +1270,7 @@ function updateThemeLabels() {
   const next = getEffectiveTheme() === 'dark' ? 'ライトモードに切り替える' : 'ダークモードに切り替える';
   const btnM = document.getElementById('btn-theme-toggle-m');
   if (btnM) { btnM.title = next; btnM.setAttribute('aria-label', next); }
+  document.getElementById('theme-toggle-label-m-menu').textContent = next;
   document.getElementById('theme-toggle-label-d').textContent = next;
 }
 function toggleTheme() {
@@ -1266,6 +1280,7 @@ function toggleTheme() {
   updateThemeLabels();
 }
 document.getElementById('btn-theme-toggle-m').addEventListener('click', toggleTheme);
+document.getElementById('btn-theme-toggle-m-menu').addEventListener('click', toggleTheme);
 document.getElementById('btn-theme-toggle-d').addEventListener('click', toggleTheme);
 updateThemeLabels();
 
@@ -1280,11 +1295,11 @@ function openNicknameModal() {
   nicknameInput.focus();
 }
 document.getElementById('btn-nickname-m').addEventListener('click', openNicknameModal);
+document.getElementById('btn-nickname-m-menu').addEventListener('click', openNicknameModal);
 document.getElementById('btn-nickname-d').addEventListener('click', openNicknameModal);
 document.getElementById('btn-nickname-cancel').addEventListener('click', () => nicknameModalBackdrop.classList.add('hidden'));
 document.getElementById('btn-nickname-save').addEventListener('click', async () => {
   const value = nicknameInput.value.trim();
-  if (!value) return;
   await setMyNickname(value);
   nicknameModalBackdrop.classList.add('hidden');
 });
